@@ -1,7 +1,7 @@
 /** @file
   This application will locate all variables and acquire their status as deletable.
 
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
   **/

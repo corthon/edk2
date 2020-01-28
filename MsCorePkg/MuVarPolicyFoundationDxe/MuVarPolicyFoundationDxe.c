@@ -6,7 +6,7 @@ This DXE driver will publish policies and state variables to support a couple of
     - ExitBootServices
 - Setting up a reference variable that can only be written once that can be used in other variable policies
 
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
