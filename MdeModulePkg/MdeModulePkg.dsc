@@ -58,6 +58,7 @@
   DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
   DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
+  UefiVariablePolicyLib|MdeModulePkg/Library/UefiVariablePolicyLib/UefiVariablePolicyLib.inf
   #
   # Generic Modules
   #
@@ -97,6 +98,9 @@
   BmpSupportLib|MdeModulePkg/Library/BaseBmpSupportLib/BaseBmpSupportLib.inf
   SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
   DisplayUpdateProgressLib|MdeModulePkg/Library/DisplayUpdateProgressLibGraphics/DisplayUpdateProgressLibGraphics.inf
+  # MU_CHANGE [BEGIN]
+  MuVariablePolicyHelperLib|MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf
+  # MU_CHANGE [END]
 
 [LibraryClasses.EBC.PEIM]
   IoLib|MdePkg/Library/PeiIoLibCpuIo/PeiIoLibCpuIo.inf
@@ -223,6 +227,8 @@
   MdeModulePkg/Library/BaseHobLibNull/BaseHobLibNull.inf
   MdeModulePkg/Library/BaseMemoryAllocationLibNull/BaseMemoryAllocationLibNull.inf
 
+  MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf   # MU_CHANGE
+
   MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
   MdeModulePkg/Bus/Pci/PciSioSerialDxe/PciSioSerialDxe.inf
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
@@ -306,6 +312,9 @@
   MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf
   MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
+  MdeModulePkg/Library/UefiVariablePolicyLib/UefiVariablePolicyLib.inf            # MU_CHANGE
+  MdeModulePkg/Universal/Variable/UefiVariablePolicy/Dxe/VariablePolicyDxe.inf    # MU_CHANGE
+  MdeModulePkg/Universal/Variable/UefiVariablePolicy/Library/VarCheckPolicyLib/VarCheckPolicyLib.inf    # MU_CHANGE
   MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
   MdeModulePkg/Library/VarCheckHiiLib/VarCheckHiiLib.inf
   MdeModulePkg/Library/VarCheckPcdLib/VarCheckPcdLib.inf

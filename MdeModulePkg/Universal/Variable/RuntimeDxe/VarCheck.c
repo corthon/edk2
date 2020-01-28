@@ -25,37 +25,39 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
                                 already been signaled.
   @retval EFI_OUT_OF_RESOURCES  There is not enough resource to hold the lock request.
 **/
-EFI_STATUS
-EFIAPI
-VariableLockRequestToLock (
-  IN CONST EDKII_VARIABLE_LOCK_PROTOCOL *This,
-  IN       CHAR16                       *VariableName,
-  IN       EFI_GUID                     *VendorGuid
-  )
-{
-  EFI_STATUS                    Status;
-  VAR_CHECK_VARIABLE_PROPERTY   Property;
+// MS_CHANGE_90369 [BEGIN] Separate the logic for VarLock from VarCheck.
+// EFI_STATUS
+// EFIAPI
+// VariableLockRequestToLock (
+//   IN CONST EDKII_VARIABLE_LOCK_PROTOCOL *This,
+//   IN       CHAR16                       *VariableName,
+//   IN       EFI_GUID                     *VendorGuid
+//   )
+// {
+//   EFI_STATUS                    Status;
+//   VAR_CHECK_VARIABLE_PROPERTY   Property;
 
-  AcquireLockOnlyAtBootTime (&mVariableModuleGlobal->VariableGlobal.VariableServicesLock);
+//   AcquireLockOnlyAtBootTime (&mVariableModuleGlobal->VariableGlobal.VariableServicesLock);
 
-  Status = VarCheckLibVariablePropertyGet (VariableName, VendorGuid, &Property);
-  if (!EFI_ERROR (Status)) {
-    Property.Property |= VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
-  } else {
-    Property.Revision = VAR_CHECK_VARIABLE_PROPERTY_REVISION;
-    Property.Property = VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
-    Property.Attributes = 0;
-    Property.MinSize = 1;
-    Property.MaxSize = MAX_UINTN;
-  }
-  Status = VarCheckLibVariablePropertySet (VariableName, VendorGuid, &Property);
+//   Status = VarCheckLibVariablePropertyGet (VariableName, VendorGuid, &Property);
+//   if (!EFI_ERROR (Status)) {
+//     Property.Property |= VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
+//   } else {
+//     Property.Revision = VAR_CHECK_VARIABLE_PROPERTY_REVISION;
+//     Property.Property = VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY;
+//     Property.Attributes = 0;
+//     Property.MinSize = 1;
+//     Property.MaxSize = MAX_UINTN;
+//   }
+//   Status = VarCheckLibVariablePropertySet (VariableName, VendorGuid, &Property);
 
-  DEBUG ((EFI_D_INFO, "[Variable] Lock: %g:%s %r\n", VendorGuid, VariableName, Status));
+//   DEBUG ((EFI_D_INFO, "[Variable] Lock: %g:%s %r\n", VendorGuid, VariableName, Status));
 
-  ReleaseLockOnlyAtBootTime (&mVariableModuleGlobal->VariableGlobal.VariableServicesLock);
+//   ReleaseLockOnlyAtBootTime (&mVariableModuleGlobal->VariableGlobal.VariableServicesLock);
 
-  return Status;
-}
+//   return Status;
+// }
+// MS_CHANGE_90369 [END] Separate the logic for VarLock from VarCheck.
 
 /**
   Register SetVariable check handler.
