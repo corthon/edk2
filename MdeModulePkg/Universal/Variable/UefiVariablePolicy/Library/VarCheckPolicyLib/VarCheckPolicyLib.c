@@ -2,7 +2,7 @@
 This is an instance of a VarCheck lib that leverages the business logic behind
 the VariablePolicy code to make its decisions.
 
-Copyright (c) Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/

@@ -4,7 +4,7 @@ new policies with the VariablePolicy infrastructure.
 
 This library is currently written against VariablePolicy revision 0x00010000.
 
-Copyright (c) Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
