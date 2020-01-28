@@ -58,7 +58,7 @@ PopulateCommonData (
 
   // NOTE: As a heler, fix up MaxSize for compatibility with the old model.
   if (EntPtr->MaxSize == 0) {
-    EntPtr->MaxSize = MAX_UINT32;
+    EntPtr->MaxSize = VARIABLE_POLICY_NO_MAX_SIZE;
   }
 
   return;
