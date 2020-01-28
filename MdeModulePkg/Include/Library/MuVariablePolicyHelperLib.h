@@ -2,7 +2,7 @@
 This library contains helper functions for marshalling and registering
 new policies with the VariablePolicy infrastructure.
 
-Copyright (c) Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
