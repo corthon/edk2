@@ -93,6 +93,7 @@ MicrocodeDetect (
   UINT32                                  InCompleteCheckSum32;
   BOOLEAN                                 CorrectMicrocode;
   VOID                                    *MicrocodeData;
+  MSR_IA32_PLATFORM_ID_REGISTER           PlatformIdMsr;
   UINT32                                  ThreadId;
   BOOLEAN                                 IsBspCallIn;
 
@@ -115,8 +116,18 @@ MicrocodeDetect (
   }
 
   ExtendedTableLength = 0;
-  Eax.Uint32 = CpuMpData->CpuData[ProcessorNumber].ProcessorSignature;
-  PlatformId = CpuMpData->CpuData[ProcessorNumber].PlatformId;
+  //
+  // Here data of CPUID leafs have not been collected into context buffer, so
+  // GetProcessorCpuid() cannot be used here to retrieve CPUID data.
+  //
+  AsmCpuid (CPUID_VERSION_INFO, &Eax.Uint32, NULL, NULL, NULL);
+
+  //
+  // The index of platform information resides in bits 50:52 of MSR IA32_PLATFORM_ID
+  //
+  PlatformIdMsr.Uint64 = AsmReadMsr64 (MSR_IA32_PLATFORM_ID);
+  PlatformId = (UINT8) PlatformIdMsr.Bits.PlatformId;
+
 
   //
   // Check whether AP has same processor with BSP.
@@ -727,4 +738,47 @@ ShadowMicrocodeUpdatePatch (
   if (EFI_ERROR (Status)) {
     ShadowMicrocodePatchByPcd (CpuMpData);
   }
+}
+
+/**
+  Get the cached microcode patch base address and size from the microcode patch
+  information cache HOB.
+
+  @param[out] Address       Base address of the microcode patches data.
+                            It will be updated if the microcode patch
+                            information cache HOB is found.
+  @param[out] RegionSize    Size of the microcode patches data.
+                            It will be updated if the microcode patch
+                            information cache HOB is found.
+
+  @retval  TRUE     The microcode patch information cache HOB is found.
+  @retval  FALSE    The microcode patch information cache HOB is not found.
+
+**/
+BOOLEAN
+GetMicrocodePatchInfoFromHob (
+  UINT64                         *Address,
+  UINT64                         *RegionSize
+  )
+{
+  EFI_HOB_GUID_TYPE            *GuidHob;
+  EDKII_MICROCODE_PATCH_HOB    *MicrocodePathHob;
+
+  GuidHob = GetFirstGuidHob (&gEdkiiMicrocodePatchHobGuid);
+  if (GuidHob == NULL) {
+    DEBUG((DEBUG_INFO, "%a: Microcode patch cache HOB is not found.\n", __FUNCTION__));
+    return FALSE;
+  }
+
+  MicrocodePathHob = GET_GUID_HOB_DATA (GuidHob);
+
+  *Address    = MicrocodePathHob->MicrocodePatchAddress;
+  *RegionSize = MicrocodePathHob->MicrocodePatchRegionSize;
+
+  DEBUG((
+    DEBUG_INFO, "%a: MicrocodeBase = 0x%lx, MicrocodeSize = 0x%lx\n",
+    __FUNCTION__, *Address, *RegionSize
+    ));
+
+  return TRUE;
 }
