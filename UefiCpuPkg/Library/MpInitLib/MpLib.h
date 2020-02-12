@@ -29,6 +29,8 @@
 #include <Library/MtrrLib.h>
 #include <Library/HobLib.h>
 
+#include <Guid/MicrocodePatchHob.h>
+
 #include <IndustryStandard/FirmwareInterfaceTable.h>
 
 
@@ -219,8 +221,6 @@ struct _CPU_MP_DATA {
   UINT64                         CpuInfoInHob;
   UINT32                         CpuCount;
   UINT32                         BspNumber;
-  UINT64                         MicrocodePatchAddress;
-  UINT64                         MicrocodePatchRegionSize;
   //
   // The above fields data will be passed from PEI to DXE
   // Please make sure the fields offset same in the different
@@ -264,6 +264,8 @@ struct _CPU_MP_DATA {
   UINT8                          Vector;
   BOOLEAN                        PeriodicMode;
   BOOLEAN                        TimerInterruptState;
+  UINT64                         MicrocodePatchAddress;
+  UINT64                         MicrocodePatchRegionSize;
 
   //
   // Whether need to use Init-Sipi-Sipi to wake up the APs.
@@ -597,6 +599,27 @@ MicrocodeDetect (
 VOID
 ShadowMicrocodeUpdatePatch (
   IN OUT CPU_MP_DATA             *CpuMpData
+  );
+
+/**
+  Get the cached microcode patch base address and size from the microcode patch
+  information cache HOB.
+
+  @param[out] Address       Base address of the microcode patches data.
+                            It will be updated if the microcode patch
+                            information cache HOB is found.
+  @param[out] RegionSize    Size of the microcode patches data.
+                            It will be updated if the microcode patch
+                            information cache HOB is found.
+
+  @retval  TRUE     The microcode patch information cache HOB is found.
+  @retval  FALSE    The microcode patch information cache HOB is not found.
+
+**/
+BOOLEAN
+GetMicrocodePatchInfoFromHob (
+  UINT64                         *Address,
+  UINT64                         *RegionSize
   );
 
 /**

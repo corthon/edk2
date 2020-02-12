@@ -79,6 +79,10 @@ class EmailAddressCheck:
             self.error("The email address cannot contain a space: " +
                        mo.group(3))
 
+        if ' via Groups.Io' in name and mo.group(3).endswith('@groups.io'):
+            self.error("Email rewritten by lists DMARC / DKIM / SPF: " +
+                       email)
+
 class CommitMessageCheck:
     """Checks the contents of a git commit message."""
 
@@ -643,11 +647,13 @@ class CheckGitCommits:
 
     def read_patch_from_git(self, commit):
         # Run git to get the commit patch
-        return self.run_git('show', '--pretty=email', '--no-textconv', commit)
+        return self.run_git('show', '--pretty=email', '--no-textconv',
+                            '--no-use-mailmap', commit)
 
     def read_committer_email_address_from_git(self, commit):
         # Run git to get the committer email
-        return self.run_git('show', '--pretty=%cn <%ce>', '--no-patch', commit)
+        return self.run_git('show', '--pretty=%cn <%ce>', '--no-patch',
+                            '--no-use-mailmap', commit)
 
     def run_git(self, *args):
         cmd = [ 'git' ]
