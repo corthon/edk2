@@ -309,6 +309,7 @@
   MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf
   MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
+  MdeModulePkg/Universal/VarPolicyFoundationDxe/VarPolicyFoundationDxe.inf
   MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf
   MdeModulePkg/Universal/Variable/VariablePolicy/Dxe/VariablePolicyDxe.inf
   MdeModulePkg/Universal/Variable/VariablePolicy/Library/VarCheckPolicyLib/VarCheckPolicyLib.inf
