@@ -1,0 +1,12 @@
+// /** @file
+// VariablePolicyDxe.uni
+//
+// Copyright (c) Microsoft Corporation.
+// SPDX-License-Identifier: BSD-2-Clause-Patent
+//
+// **/
+
+
+#string STR_MODULE_ABSTRACT             #language en-US "DXE driver that publishes the VariablePolicy protocol and acts as an interface to the VariablePolicy engine"
+
+#string STR_MODULE_DESCRIPTION          #language en-US "DXE driver that publishes the VariablePolicy protocol and acts as an interface to the VariablePolicy engine"
