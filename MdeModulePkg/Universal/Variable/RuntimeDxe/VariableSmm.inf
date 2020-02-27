@@ -78,6 +78,7 @@
   AuthVariableLib
   VarCheckLib
   UefiBootServicesTableLib
+  VariablePolicyLib
 
 [Protocols]
   gEfiSmmFirmwareVolumeBlockProtocolGuid        ## CONSUMES

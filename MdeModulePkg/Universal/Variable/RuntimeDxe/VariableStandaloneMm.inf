@@ -74,6 +74,7 @@
   StandaloneMmDriverEntryPoint
   SynchronizationLib
   VarCheckLib
+  VariablePolicyLib
 
 [Protocols]
   gEfiSmmFirmwareVolumeBlockProtocolGuid        ## CONSUMES

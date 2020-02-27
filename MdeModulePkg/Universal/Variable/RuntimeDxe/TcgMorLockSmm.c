@@ -17,6 +17,10 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/BaseMemoryLib.h>
 #include "Variable.h"
 
+#include <Protocol/VariablePolicy.h>
+
+#include <Library/VariablePolicyLib.h>
+
 typedef struct {
   CHAR16                                 *VariableName;
   EFI_GUID                               *VendorGuid;
@@ -338,6 +342,11 @@ SetVariableCheckHandlerMor (
   // do not handle non-MOR variable
   //
   if (!IsAnyMorVariable (VariableName, VendorGuid)) {
+    return EFI_SUCCESS;
+  }
+
+  // Permit deletion when policy is disabled.
+  if (!IsVariablePolicyEnabled() && ((Attributes == 0) || (DataSize == 0))) {
     return EFI_SUCCESS;
   }
 
