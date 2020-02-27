@@ -468,7 +468,6 @@ SmmVariableHandler (
   SMM_VARIABLE_COMMUNICATE_GET_PAYLOAD_SIZE               *GetPayloadSize;
   SMM_VARIABLE_COMMUNICATE_RUNTIME_VARIABLE_CACHE_CONTEXT *RuntimeVariableCacheContext;
   SMM_VARIABLE_COMMUNICATE_GET_RUNTIME_CACHE_INFO         *GetRuntimeCacheInfo;
-  SMM_VARIABLE_COMMUNICATE_LOCK_VARIABLE                  *VariableToLock;
   SMM_VARIABLE_COMMUNICATE_VAR_CHECK_VARIABLE_PROPERTY    *CommVariableProperty;
   VARIABLE_INFO_ENTRY                                     *VariableInfo;
   VARIABLE_RUNTIME_CACHE_CONTEXT                          *VariableCacheContext;
@@ -723,18 +722,6 @@ SmmVariableHandler (
       *CommBufferSize = InfoSize + SMM_VARIABLE_COMMUNICATE_HEADER_SIZE;
       break;
 
-    case SMM_VARIABLE_FUNCTION_LOCK_VARIABLE:
-      if (mEndOfDxe) {
-        Status = EFI_ACCESS_DENIED;
-      } else {
-        VariableToLock = (SMM_VARIABLE_COMMUNICATE_LOCK_VARIABLE *) SmmVariableFunctionHeader->Data;
-        Status = VariableLockRequestToLock (
-                   NULL,
-                   VariableToLock->Name,
-                   &VariableToLock->Guid
-                   );
-      }
-      break;
     case SMM_VARIABLE_FUNCTION_VAR_CHECK_VARIABLE_PROPERTY_SET:
       if (mEndOfDxe) {
         Status = EFI_ACCESS_DENIED;

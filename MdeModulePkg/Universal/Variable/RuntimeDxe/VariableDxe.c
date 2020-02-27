@@ -16,7 +16,6 @@ EFI_EVENT                           mVirtualAddressChangeEvent = NULL;
 VOID                                *mFtwRegistration          = NULL;
 VOID                                ***mVarCheckAddressPointer = NULL;
 UINTN                               mVarCheckAddressPointerCount = 0;
-EDKII_VARIABLE_LOCK_PROTOCOL        mVariableLock              = { VariableLockRequestToLock };
 EDKII_VAR_CHECK_PROTOCOL            mVarCheck                  = { VarCheckRegisterSetVariableCheckHandler,
                                                                     VarCheckVariablePropertySet,
                                                                     VarCheckVariablePropertyGet };
@@ -490,14 +489,6 @@ VariableServiceInitialize (
   EFI_EVENT                             EndOfDxeEvent;
 
   Status = VariableCommonInitialize ();
-  ASSERT_EFI_ERROR (Status);
-
-  Status = gBS->InstallMultipleProtocolInterfaces (
-                  &mHandle,
-                  &gEdkiiVariableLockProtocolGuid,
-                  &mVariableLock,
-                  NULL
-                  );
   ASSERT_EFI_ERROR (Status);
 
   Status = gBS->InstallMultipleProtocolInterfaces (

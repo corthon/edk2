@@ -78,7 +78,6 @@
   gEfiFaultTolerantWriteProtocolGuid
   gEfiVariableWriteArchProtocolGuid             ## PRODUCES
   gEfiVariableArchProtocolGuid                  ## PRODUCES
-  gEdkiiVariableLockProtocolGuid                ## PRODUCES
   gVariablePolicyProtocolGuid                   ## CONSUMES
   gEdkiiVarCheckProtocolGuid                    ## PRODUCES
 
