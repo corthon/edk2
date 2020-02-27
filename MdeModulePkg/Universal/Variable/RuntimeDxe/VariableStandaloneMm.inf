@@ -75,6 +75,7 @@
   SynchronizationLib
   VarCheckLib
   VariablePolicyLib
+  VariablePolicyHelperLib
 
 [Protocols]
   gEfiSmmFirmwareVolumeBlockProtocolGuid        ## CONSUMES

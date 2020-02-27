@@ -69,6 +69,7 @@
   TpmMeasurementLib
   AuthVariableLib
   VarCheckLib
+  VariablePolicyHelperLib
 
 [Protocols]
   gEfiFirmwareVolumeBlockProtocolGuid           ## CONSUMES
@@ -78,6 +79,7 @@
   gEfiVariableWriteArchProtocolGuid             ## PRODUCES
   gEfiVariableArchProtocolGuid                  ## PRODUCES
   gEdkiiVariableLockProtocolGuid                ## PRODUCES
+  gVariablePolicyProtocolGuid                   ## CONSUMES
   gEdkiiVarCheckProtocolGuid                    ## PRODUCES
 
 [Guids]

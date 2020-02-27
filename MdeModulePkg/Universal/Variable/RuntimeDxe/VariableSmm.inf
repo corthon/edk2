@@ -78,6 +78,7 @@
   AuthVariableLib
   VarCheckLib
   UefiBootServicesTableLib
+  VariablePolicyHelperLib
   VariablePolicyLib
 
 [Protocols]
