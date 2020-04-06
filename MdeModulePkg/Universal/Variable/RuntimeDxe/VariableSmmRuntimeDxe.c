@@ -14,6 +14,7 @@
   InitCommunicateBuffer() is really function to check the variable data size.
 
 Copyright (c) 2010 - 2019, Intel Corporation. All rights reserved.<BR>
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -63,6 +64,17 @@ BOOLEAN                          mHobFlushComplete;
 EFI_LOCK                         mVariableServicesLock;
 EDKII_VARIABLE_LOCK_PROTOCOL     mVariableLock;
 EDKII_VAR_CHECK_PROTOCOL         mVarCheck;
+
+/**
+  The logic to initialize the VariablePolicy engine is in its own file.
+
+**/
+EFI_STATUS
+EFIAPI
+VariablePolicySmmDxeMain (
+  IN    EFI_HANDLE                  ImageHandle,
+  IN    EFI_SYSTEM_TABLE            *SystemTable
+  );
 
 /**
   Some Secure Boot Policy Variable may update following other variable changes(SecureBoot follows PK change, etc).
@@ -1790,6 +1802,9 @@ VariableSmmRuntimeInitialize (
          &gEfiEventVirtualAddressChangeGuid,
          &mVirtualAddressChangeEvent
          );
+
+  // Initialize the VariablePolicy protocol and engine.
+  VariablePolicySmmDxeMain (ImageHandle, SystemTable);
 
   return EFI_SUCCESS;
 }
