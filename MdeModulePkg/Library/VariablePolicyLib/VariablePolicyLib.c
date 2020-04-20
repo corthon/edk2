@@ -55,6 +55,17 @@ STATIC  UINT32              mCurrentTableCount = 0;
 #define MATCH_PRIORITY_MAX      MATCH_PRIORITY_EXACT
 #define MATCH_PRIORITY_MIN      MAX_UINT8
 
+// ExtraInit/ExtraDeinit functions allow RuntimeDxe to register VirtualAddress callbacks.
+EFI_STATUS
+VariablePolicyExtraInit (
+  VOID
+  );
+
+EFI_STATUS
+VariablePolicyExtraDeinit (
+  VOID
+  );
+
 
 /**
   This helper function determines whether the structure of an incoming policy
@@ -702,22 +713,30 @@ InitVariablePolicyLib (
   IN  EFI_GET_VARIABLE    GetVariableHelper
   )
 {
+  EFI_STATUS    Status;
+
   if (mGetVariableHelper != NULL) {
-    return EFI_ALREADY_STARTED;
+    Status = EFI_ALREADY_STARTED;
   }
 
-  // Save an internal pointer to the GetVariableHelper.
-  mGetVariableHelper = GetVariableHelper;
+  if (!EFI_ERROR( Status )) {
+    Status = VariablePolicyExtraInit();
+  }
 
-  // Initialize the global state.
-  mInterfaceLocked = FALSE;
-  mProtectionDisabled = FALSE;
-  mPolicyTable = NULL;
-  mCurrentTableSize = 0;
-  mCurrentTableUsage = 0;
-  mCurrentTableCount = 0;
+  if (!EFI_ERROR( Status )) {
+    // Save an internal pointer to the GetVariableHelper.
+    mGetVariableHelper = GetVariableHelper;
 
-  return EFI_SUCCESS;
+    // Initialize the global state.
+    mInterfaceLocked = FALSE;
+    mProtectionDisabled = FALSE;
+    mPolicyTable = NULL;
+    mCurrentTableSize = 0;
+    mCurrentTableUsage = 0;
+    mCurrentTableCount = 0;
+  }
+
+  return Status;
 }
 
 
@@ -753,21 +772,29 @@ DeinitVariablePolicyLib (
   VOID
   )
 {
+  EFI_STATUS    Status;
+
   if (mGetVariableHelper == NULL) {
-    return EFI_NOT_READY;
+    Status = EFI_NOT_READY;
   }
 
-  mGetVariableHelper = NULL;
-  mInterfaceLocked = FALSE;
-  mProtectionDisabled = FALSE;
-  mCurrentTableSize = 0;
-  mCurrentTableUsage = 0;
-  mCurrentTableCount = 0;
-
-  if (mPolicyTable != NULL) {
-    FreePool( mPolicyTable );
-    mPolicyTable = NULL;
+  if (!EFI_ERROR( Status )) {
+    Status = VariablePolicyExtraDeinit();
   }
 
-  return EFI_SUCCESS;
+  if (!EFI_ERROR( Status )) {
+    mGetVariableHelper = NULL;
+    mInterfaceLocked = FALSE;
+    mProtectionDisabled = FALSE;
+    mCurrentTableSize = 0;
+    mCurrentTableUsage = 0;
+    mCurrentTableCount = 0;
+
+    if (mPolicyTable != NULL) {
+      FreePool( mPolicyTable );
+      mPolicyTable = NULL;
+    }
+  }
+
+  return Status;
 }

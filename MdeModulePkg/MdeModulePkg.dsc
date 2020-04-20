@@ -132,6 +132,7 @@
   DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
   LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibFmp/DxeRuntimeCapsuleLib.inf
+  VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf
 
 [LibraryClasses.common.SMM_CORE]
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
@@ -311,6 +312,7 @@
   MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
   MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf
+  MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf
   MdeModulePkg/Library/VarCheckPolicyLib/VarCheckPolicyLib.inf
   MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
   MdeModulePkg/Library/VarCheckHiiLib/VarCheckHiiLib.inf
