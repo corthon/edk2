@@ -11,10 +11,12 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/SafeIntLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/DebugLib.h>
+#include <Library/PcdLib.h>
+
 #include <Protocol/VariablePolicy.h>
 #include <Library/VariablePolicyLib.h>
 
-#include <Library/DebugLib.h>
 
 // IMPORTANT NOTE: This library is currently rife with multiple return statements
 //                 for error handling. A refactor should remove these at some point.
@@ -555,6 +557,7 @@ Exit:
   @retval     EFI_SUCCESS
   @retval     EFI_ALREADY_STARTED   Has already been called once this boot.
   @retval     EFI_WRITE_PROTECTED   Interface has been locked until reboot.
+  @retval     EFI_WRITE_PROTECTED   Interface option is disabled by platform PCD.
   @retval     EFI_NOT_READY         Library has not yet been initialized.
 
 **/
@@ -571,6 +574,9 @@ DisableVariablePolicy (
     return EFI_ALREADY_STARTED;
   }
   if (mInterfaceLocked) {
+    return EFI_WRITE_PROTECTED;
+  }
+  if (!PcdGetBool (PcdAllowVariablePolicyEnforcementDisable)) {
     return EFI_WRITE_PROTECTED;
   }
   mProtectionDisabled = TRUE;

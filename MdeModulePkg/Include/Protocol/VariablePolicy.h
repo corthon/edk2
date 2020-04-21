@@ -59,6 +59,7 @@ typedef struct {
   @retval     EFI_SUCCESS
   @retval     EFI_ALREADY_STARTED   Has already been called once this boot.
   @retval     EFI_WRITE_PROTECTED   Interface has been locked until reboot.
+  @retval     EFI_WRITE_PROTECTED   Interface option is disabled by platform PCD.
 
 **/
 typedef

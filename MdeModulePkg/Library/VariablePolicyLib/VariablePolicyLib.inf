@@ -37,3 +37,8 @@
   BaseMemoryLib
   MemoryAllocationLib
   SafeIntLib
+  PcdLib
+
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable     ## CONSUMES

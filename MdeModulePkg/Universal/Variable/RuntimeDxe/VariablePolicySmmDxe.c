@@ -54,6 +54,7 @@ InternalMmCommunicate (
   @retval     EFI_SUCCESS
   @retval     EFI_ALREADY_STARTED   Has already been called once this boot.
   @retval     EFI_WRITE_PROTECTED   Interface has been locked until reboot.
+  @retval     EFI_WRITE_PROTECTED   Interface option is disabled by platform PCD.
 
 **/
 STATIC
@@ -67,6 +68,12 @@ ProtocolDisableVariablePolicy (
   EFI_MM_COMMUNICATE_HEADER     *CommHeader;
   VAR_CHECK_POLICY_COMM_HEADER  *PolicyHeader;
   UINTN                         BufferSize;
+
+  // Check the PCD for convenience.
+  // This would also be rejected by the lib, but why go to MM if we don't have to?
+  if (!PcdGetBool (PcdAllowVariablePolicyEnforcementDisable)) {
+    return EFI_WRITE_PROTECTED;
+  }
 
   // Set up the MM communication.
   BufferSize    = mMmCommunicationBufferSize;

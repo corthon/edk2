@@ -41,6 +41,11 @@
   SafeIntLib
   UefiBootServicesTableLib
   UefiRuntimeServicesTableLib
+  PcdLib
+
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable     ## CONSUMES
 
 
 [Guids]

@@ -59,6 +59,7 @@
   UefiDriverEntryPoint
   TpmMeasurementLib
   SafeIntLib
+  PcdLib
 
 [Protocols]
   gEfiVariableWriteArchProtocolGuid             ## PRODUCES
@@ -76,6 +77,9 @@
 [FeaturePcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdEnableVariableRuntimeCache           ## CONSUMES
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableCollectStatistics            ## CONSUMES
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable     ## CONSUMES
 
 [Guids]
   ## PRODUCES             ## GUID # Signature of Variable store header
