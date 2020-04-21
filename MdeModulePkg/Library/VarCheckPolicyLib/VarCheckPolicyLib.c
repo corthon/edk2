@@ -15,6 +15,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
 
+#include <Protocol/MmCommunication.h>
+
 #include <Protocol/VariablePolicy.h>
 #include <Library/VariablePolicyLib.h>
 
@@ -63,11 +65,19 @@ VarCheckPolicyLibMmiHandler (
   )
 {
   EFI_STATUS                                Status = EFI_SUCCESS;
+  EFI_STATUS                                SubCommandStatus;
   VAR_CHECK_POLICY_COMM_HEADER              *PolicyCommmHeader;
   VAR_CHECK_POLICY_COMM_IS_ENABLED_PARAMS   *IsEnabledParams;
-  // VAR_CHECK_POLICY_COMM_DUMP_PARAMS         *DumpParams;     // Not yet implemented.
+  VAR_CHECK_POLICY_COMM_DUMP_PARAMS         *DumpParams;
+  UINT8                                     *DumpInputBuffer;
+  UINT8                                     *DumpOutputBuffer;
+  UINTN                                     DumpTotalPages;
   VARIABLE_POLICY_ENTRY                     *PolicyEntry;
   UINTN                                     ExpectedSize;
+  // Pagination Cache Variables
+  static UINT8                              *PaginationCache = NULL;
+  static UINTN                              PaginationCacheSize = 0;
+  static UINT32                             CurrentPaginationCommand = 0;
 
   //
   // Validate some input parameters.
@@ -91,6 +101,15 @@ VarCheckPolicyLibMmiHandler (
     // We have verified the buffer is not null and have enough size to hold Result field.
     PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
     return EFI_SUCCESS;
+  }
+
+  // If we're in the middle of a paginated dump and any command is sent,
+  // pagincation cache must be cleared.
+  if (PaginationCache != NULL && PolicyCommmHeader->Command != CurrentPaginationCommand) {
+    FreePool (PaginationCache);
+    PaginationCache = NULL;
+    PaginationCacheSize = 0;
+    CurrentPaginationCommand = 0;
   }
 
   //
@@ -144,8 +163,96 @@ VarCheckPolicyLibMmiHandler (
       break;
 
     case VAR_CHECK_POLICY_COMMAND_DUMP:
+      // Make sure that we're dealing with a reasonable size.
+      // This add should be safe because these are fixed sizes so far.
+      ExpectedSize += sizeof(VAR_CHECK_POLICY_COMM_DUMP_PARAMS);
+      if (*CommBufferSize < ExpectedSize) {
+        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
+        PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
+        break;
+      }
+
+      // Now that we know we've got a valid size, we can fill in the rest of the data.
+      DumpParams = (VAR_CHECK_POLICY_COMM_DUMP_PARAMS*)(PolicyCommmHeader + 1);
+
+      // If we're requesting the first page, initialize the cache and get the sizes.
+      if (DumpParams->PageRequested == 0) {
+        if (PaginationCache != NULL) {
+          FreePool (PaginationCache);
+          PaginationCache = NULL;
+        }
+
+        // Determine what the required size is going to be.
+        DumpParams->TotalSize = 0;
+        DumpParams->PageSize = 0;
+        DumpParams->HasMore = FALSE;
+        SubCommandStatus = DumpVariablePolicy (NULL, &DumpParams->TotalSize);
+        if (SubCommandStatus == EFI_BUFFER_TOO_SMALL && DumpParams->TotalSize > 0) {
+          CurrentPaginationCommand = VAR_CHECK_POLICY_COMMAND_DUMP;
+          PaginationCacheSize = DumpParams->TotalSize;
+          PaginationCache = AllocatePool (PaginationCacheSize);
+          if (PaginationCache == NULL) {
+            SubCommandStatus = EFI_OUT_OF_RESOURCES;
+          }
+        }
+
+        // If we've allocated our pagination cache, we're good to cache.
+        if (PaginationCache != NULL) {
+          SubCommandStatus = DumpVariablePolicy (PaginationCache, &DumpParams->TotalSize);
+        }
+
+        // Populate the remaining fields and we can boogie.
+        if (!EFI_ERROR (SubCommandStatus) && PaginationCache != NULL) {
+          DumpParams->HasMore = TRUE;
+        }
+      }
+      else if (PaginationCache != NULL) {
+        DumpParams->TotalSize = (UINT32)PaginationCacheSize;
+        DumpParams->PageSize = VAR_CHECK_POLICY_MM_DUMP_BUFFER_SIZE;
+        DumpOutputBuffer = (UINT8*)(DumpParams + 1);
+
+        // Make sure that we don't over-index the cache.
+        DumpTotalPages = PaginationCacheSize / DumpParams->PageSize;
+        if (PaginationCacheSize % DumpParams->PageSize) DumpTotalPages++;
+        if (DumpParams->PageRequested > DumpTotalPages) {
+          SubCommandStatus = EFI_INVALID_PARAMETER;
+        }
+        else {
+          // Figure out how far into the page cache we need to go for our next page.
+          // We know the blind subtraction won't be bad because we already checked for page 0.
+          DumpInputBuffer = &PaginationCache[DumpParams->PageSize * (DumpParams->PageRequested - 1)];
+          // If we're getting the last page, adjust the PageSize.
+          if (DumpParams->PageRequested == DumpTotalPages) {
+            DumpParams->PageSize = PaginationCacheSize % DumpParams->PageSize;
+          }
+          CopyMem (DumpOutputBuffer, DumpInputBuffer, DumpParams->PageSize);
+          // If we just got the last page, settle up the cache.
+          if (DumpParams->PageRequested == DumpTotalPages) {
+            DumpParams->HasMore = FALSE;
+            FreePool (PaginationCache);
+            PaginationCache = NULL;
+            PaginationCacheSize = 0;
+            CurrentPaginationCommand = 0;
+          }
+          // Otherwise, we could do more here.
+          else {
+            DumpParams->HasMore = TRUE;
+          }
+
+          // If we made it this far, we're basically good.
+          SubCommandStatus = EFI_SUCCESS;
+        }
+      }
+      // If we've requested any other page than 0 and the cache is empty, we must have timed out.
+      else {
+        DumpParams->TotalSize = 0;
+        DumpParams->PageSize = 0;
+        DumpParams->HasMore = FALSE;
+        SubCommandStatus = EFI_TIMEOUT;
+      }
+
       // There's currently no use for this, but it shouldn't be hard to implement.
-      PolicyCommmHeader->Result = EFI_UNSUPPORTED;
+      PolicyCommmHeader->Result = SubCommandStatus;
       break;
 
     case VAR_CHECK_POLICY_COMMAND_LOCK:
