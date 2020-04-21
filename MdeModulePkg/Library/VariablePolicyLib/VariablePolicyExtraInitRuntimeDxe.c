@@ -16,7 +16,7 @@ STATIC BOOLEAN            mIsVirtualAddrConverted;
 STATIC EFI_EVENT          mVariablePolicyLibVirtualAddressChangeEvent  = NULL;
 
 /**
-  Convert EsrtTable physical address to virtual address.
+  For the RuntimeDxe version of this lib, convert internal pointer addresses to virtual addresses.
 
   @param[in] Event      Event whose notification function is being invoked.
   @param[in] Context    The pointer to the notification function's context, which
@@ -25,13 +25,13 @@ STATIC EFI_EVENT          mVariablePolicyLibVirtualAddressChangeEvent  = NULL;
 STATIC
 VOID
 EFIAPI
-VariablePolicyLibVirtualAddressChangeEvent (
+VariablePolicyLibVirtualAddressCallback (
   IN  EFI_EVENT   Event,
   IN  VOID        *Context
   )
 {
-  gRT->ConvertPointer (EFI_OPTIONAL_PTR, (VOID **)&mPolicyTable);
-  gRT->ConvertPointer (EFI_OPTIONAL_PTR, (VOID **)&mGetVariableHelper);
+  gRT->ConvertPointer (0, (VOID **)&mPolicyTable);
+  gRT->ConvertPointer (0, (VOID **)&mGetVariableHelper);
   mIsVirtualAddrConverted = TRUE;
 }
 
@@ -51,7 +51,7 @@ VariablePolicyExtraInit (
 {
   return gBS->CreateEventEx (EVT_NOTIFY_SIGNAL,
                               TPL_NOTIFY,
-                              VariablePolicyLibVirtualAddressChangeEvent,
+                              VariablePolicyLibVirtualAddressCallback,
                               NULL,
                               &gEfiEventVirtualAddressChangeGuid,
                               &mVariablePolicyLibVirtualAddressChangeEvent);

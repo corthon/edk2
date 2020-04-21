@@ -165,7 +165,7 @@ VarCheckPolicyLibMmiHandler (
     case VAR_CHECK_POLICY_COMMAND_DUMP:
       // Make sure that we're dealing with a reasonable size.
       // This add should be safe because these are fixed sizes so far.
-      ExpectedSize += sizeof(VAR_CHECK_POLICY_COMM_DUMP_PARAMS);
+      ExpectedSize += sizeof(VAR_CHECK_POLICY_COMM_DUMP_PARAMS) + VAR_CHECK_POLICY_MM_DUMP_BUFFER_SIZE;
       if (*CommBufferSize < ExpectedSize) {
         DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
         PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
