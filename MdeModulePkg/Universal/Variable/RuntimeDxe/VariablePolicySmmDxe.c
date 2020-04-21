@@ -478,6 +478,26 @@ LockPolicyInterfaceAtReadyToBoot (
 
 
 /**
+  Convert internal pointer addresses to virtual addresses.
+
+  @param[in] Event      Event whose notification function is being invoked.
+  @param[in] Context    The pointer to the notification function's context, which
+                        is implementation-dependent.
+**/
+STATIC
+VOID
+EFIAPI
+VariablePolicyVirtualAddressCallback (
+  IN  EFI_EVENT   Event,
+  IN  VOID        *Context
+  )
+{
+  EfiConvertPointer (0, (VOID **)&mMmCommunication);
+  EfiConvertPointer (0, (VOID **)&mMmCommunicationBuffer);
+}
+
+
+/**
   The driver's entry point.
 
   @param[in] ImageHandle  The firmware allocated handle for the EFI image.
@@ -497,7 +517,9 @@ VariablePolicySmmDxeMain (
   EFI_STATUS              Status = EFI_SUCCESS;
   BOOLEAN                 ProtocolInstalled = FALSE;
   BOOLEAN                 CallbackRegistered = FALSE;
+  BOOLEAN                 VirtualAddressChangeRegistered = FALSE;
   EFI_EVENT               ReadyToBootEvent;
+  EFI_EVENT               VirtualAddressChangeEvent;
 
   // Update the minimum buffer size.
   mMmCommunicationBufferSize = VAR_CHECK_POLICY_MM_COMM_BUFFER_SIZE;
@@ -554,6 +576,23 @@ VariablePolicySmmDxeMain (
     CallbackRegistered = TRUE;
   }
 
+  //
+  // Register a VirtualAddressChange callback for the MmComm protocol and Comm buffer.
+  Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL,
+                                TPL_NOTIFY,
+                                VariablePolicyVirtualAddressCallback,
+                                NULL,
+                                &gEfiEventVirtualAddressChangeGuid,
+                                &VirtualAddressChangeEvent);
+  if (EFI_ERROR( Status )) {
+    DEBUG(( DEBUG_ERROR, "%a - Failed to create VirtualAddressChange event! %r\n", __FUNCTION__, Status ));
+    goto Exit;
+  }
+  else {
+    VirtualAddressChangeRegistered = TRUE;
+  }
+
+
 Exit:
   //
   // If we're about to return a failed status (and unload this driver), we must first undo anything that
@@ -564,6 +603,9 @@ Exit:
     }
     if (CallbackRegistered) {
       gBS->CloseEvent( ReadyToBootEvent );
+    }
+    if (VirtualAddressChangeRegistered) {
+      gBS->CloseEvent( VirtualAddressChangeEvent );
     }
   }
 
