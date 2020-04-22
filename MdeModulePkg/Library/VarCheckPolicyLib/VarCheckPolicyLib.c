@@ -103,8 +103,8 @@ VarCheckPolicyLibMmiHandler (
     return EFI_SUCCESS;
   }
 
-  // If we're in the middle of a paginated dump and any command is sent,
-  // pagincation cache must be cleared.
+  // If we're in the middle of a paginated dump and any other command is sent,
+  // pagination cache must be cleared.
   if (PaginationCache != NULL && PolicyCommmHeader->Command != CurrentPaginationCommand) {
     FreePool (PaginationCache);
     PaginationCache = NULL;

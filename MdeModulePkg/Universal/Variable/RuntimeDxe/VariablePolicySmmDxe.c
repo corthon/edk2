@@ -40,9 +40,7 @@ InternalMmCommunicate (
   if (CommBuffer == NULL || CommSize == NULL) {
     return EFI_INVALID_PARAMETER;
   }
-  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
   Status = mMmCommunication->Communicate (mMmCommunication, CommBuffer, CommSize);
-  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
   return Status;
 }
 
@@ -75,6 +73,8 @@ ProtocolDisableVariablePolicy (
     return EFI_WRITE_PROTECTED;
   }
 
+  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // Set up the MM communication.
   BufferSize    = mMmCommunicationBufferSize;
   CommHeader    = mMmCommunicationBuffer;
@@ -87,6 +87,8 @@ ProtocolDisableVariablePolicy (
 
   Status = InternalMmCommunicate (CommHeader, &BufferSize);
   DEBUG(( DEBUG_VERBOSE, "%a - MmCommunication returned %r.\n", __FUNCTION__, Status ));
+
+  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
 
   return (EFI_ERROR( Status )) ? Status : PolicyHeader->Result;
 }
@@ -120,6 +122,8 @@ ProtocolIsVariablePolicyEnabled (
     return EFI_INVALID_PARAMETER;
   }
 
+  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // Set up the MM communication.
   BufferSize    = mMmCommunicationBufferSize;
   CommHeader    = mMmCommunicationBuffer;
@@ -138,6 +142,8 @@ ProtocolIsVariablePolicyEnabled (
     Status = PolicyHeader->Result;
     *State = CommandParams->State;
   }
+
+  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
 
   return Status;
 }
@@ -186,6 +192,8 @@ ProtocolRegisterVariablePolicy (
     return EFI_OUT_OF_RESOURCES;
   }
 
+  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // Set up the MM communication.
   BufferSize    = mMmCommunicationBufferSize;
   CommHeader    = mMmCommunicationBuffer;
@@ -203,10 +211,27 @@ ProtocolRegisterVariablePolicy (
   Status = InternalMmCommunicate (CommHeader, &BufferSize);
   DEBUG(( DEBUG_VERBOSE, "%a - MmCommunication returned %r.\n", __FUNCTION__, Status ));
 
+  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
+
   return (EFI_ERROR( Status )) ? Status : PolicyHeader->Result;
 }
 
 
+/**
+  This helper function takes care of the overhead of formatting, sending, and interpreting
+  the results for a single DumpVariablePolicy request.
+
+  @param[in]      PageRequested   The page of the paginated results from MM. 0 for metadata.
+  @param[out]     TotalSize       The total size of the entire buffer. Returned as part of metadata.
+  @param[out]     PageSize        The size of the current page being returned. Not valid as part of metadata.
+  @param[out]     HasMore         A flag indicating whether there are more pages after this one.
+  @param[out]     Buffer          The start of the current page from MM.
+
+  @retval     EFI_SUCCESS             Output params have been updated (either metadata or dump page).
+  @retval     EFI_INVALID_PARAMETER   One of the output params is NULL.
+  @retval     Others                  Response from MM handler.
+
+**/
 STATIC
 EFI_STATUS
 DumpVariablePolicyHelper (
@@ -223,7 +248,7 @@ DumpVariablePolicyHelper (
   VAR_CHECK_POLICY_COMM_DUMP_PARAMS       *CommandParams;
   UINTN                                   BufferSize;
 
-  if (TotalSize == NULL || PageSize == NULL || HasMore == NULL) {
+  if (TotalSize == NULL || PageSize == NULL || HasMore == NULL || Buffer == NULL) {
     return EFI_INVALID_PARAMETER;
   }
 
@@ -290,6 +315,8 @@ ProtocolDumpVariablePolicy (
     return EFI_INVALID_PARAMETER;
   }
 
+  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // Repeat this whole process until we either have a failure case or get the entire buffer.
   do {
     // First, we must check the zero page to determine the buffer size and
@@ -326,6 +353,8 @@ ProtocolDumpVariablePolicy (
     // Next, we check to see whether
   } while (Status == EFI_TIMEOUT);
 
+  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // There's currently no use for this, but it shouldn't be hard to implement.
   return Status;
 }
@@ -351,6 +380,8 @@ ProtocolLockVariablePolicy (
   VAR_CHECK_POLICY_COMM_HEADER  *PolicyHeader;
   UINTN                         BufferSize;
 
+  AcquireLockOnlyAtBootTime (&mMmCommunicationLock);
+
   // Set up the MM communication.
   BufferSize    = mMmCommunicationBufferSize;
   CommHeader    = mMmCommunicationBuffer;
@@ -363,6 +394,8 @@ ProtocolLockVariablePolicy (
 
   Status = InternalMmCommunicate (CommHeader, &BufferSize);
   DEBUG(( DEBUG_VERBOSE, "%a - MmCommunication returned %r.\n", __FUNCTION__, Status ));
+
+  ReleaseLockOnlyAtBootTime (&mMmCommunicationLock);
 
   return (EFI_ERROR( Status )) ? Status : PolicyHeader->Result;
 }
