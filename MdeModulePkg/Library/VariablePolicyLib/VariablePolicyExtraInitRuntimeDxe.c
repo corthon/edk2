@@ -10,8 +10,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 
-extern EFI_GET_VARIABLE   mGetVariableHelper = NULL;
-extern UINT8              *mPolicyTable = NULL;
+extern EFI_GET_VARIABLE   mGetVariableHelper;
+extern UINT8              *mPolicyTable;
 STATIC BOOLEAN            mIsVirtualAddrConverted;
 STATIC EFI_EVENT          mVariablePolicyLibVirtualAddressChangeEvent  = NULL;
 
