@@ -109,7 +109,6 @@
   gEfiImageSecurityDatabaseGuid
 
   gVarCheckPolicyLibMmiHandlerGuid
-  gEdkiiPiSmmCommunicationRegionTableGuid
 
 [Depex]
   gEfiSmmCommunicationProtocolGuid

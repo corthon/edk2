@@ -17,7 +17,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Protocol/VariablePolicy.h>
 #include <Protocol/MmCommunication.h>
 
-#include <Guid/PiSmmCommunicationRegionTable.h>
 #include <Guid/VarCheckPolicyMmi.h>
 
 #include "Variable.h"
@@ -418,7 +417,8 @@ ProtocolLockVariablePolicy (
   @param[out]     LocatedBuffer   A pointer to the matching buffer.
 
   @retval     EFI_SUCCESS
-  @retval     Others        An error has prevented this command from completing.
+  @retval     EFI_INVALID_PARAMETER   One of the output pointers was NULL.
+  @retval     EFI_OUT_OF_RESOURCES    Not enough memory to allocate a comm buffer.
 
 **/
 STATIC
@@ -429,10 +429,6 @@ InitMmCommonCommBuffer (
   )
 {
   EFI_STATUS                  Status;
-  UINTN                       Index;
-  UINTN                       CurrentRegionSize;
-  EFI_MEMORY_DESCRIPTOR       *SmmCommMemRegion;
-  EDKII_PI_SMM_COMMUNICATION_REGION_TABLE   *PiSmmCommunicationRegionTable;
 
   Status = EFI_ABORTED;
 
@@ -441,33 +437,10 @@ InitMmCommonCommBuffer (
     return EFI_INVALID_PARAMETER;
   }
 
-  Status = EfiGetSystemConfigurationTable( &gEdkiiPiSmmCommunicationRegionTableGuid, (VOID**)&PiSmmCommunicationRegionTable );
-  if (EFI_ERROR( Status )) {
-    DEBUG((DEBUG_ERROR, "%a - Failed to get system configuration table! %r\n", __FUNCTION__, Status));
-    return Status;
-  }
-
-  // Walk through each of the entries trying to find one that will work for the target size.
-  Status = EFI_OUT_OF_RESOURCES;
-  CurrentRegionSize = 0;
-  SmmCommMemRegion = (EFI_MEMORY_DESCRIPTOR*)(PiSmmCommunicationRegionTable + 1);
-  for (Index = 0; Index < PiSmmCommunicationRegionTable->NumberOfEntries; Index++) {
-    if (SmmCommMemRegion->Type == EfiConventionalMemory) {
-      CurrentRegionSize = EFI_PAGES_TO_SIZE((UINTN)SmmCommMemRegion->NumberOfPages);
-      if (CurrentRegionSize >= *BufferSize) {
-        Status = EFI_SUCCESS;
-        break;
-      }
-    }
-    SmmCommMemRegion = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)SmmCommMemRegion + PiSmmCommunicationRegionTable->DescriptorSize);
-  }
-
-  if (!EFI_ERROR( Status )) {
-    *LocatedBuffer = (VOID*)(UINTN)SmmCommMemRegion->PhysicalStart;
-    *BufferSize = CurrentRegionSize;
-  }
-  else {
-    *LocatedBuffer = NULL;
+  // Allocate the runtime memory for the comm buffer.
+  *LocatedBuffer = AllocateRuntimePool (*BufferSize);
+  if (*LocatedBuffer == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     *BufferSize = 0;
   }
 
