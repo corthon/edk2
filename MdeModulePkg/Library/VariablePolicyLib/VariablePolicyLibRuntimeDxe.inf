@@ -3,7 +3,6 @@
 # This instance is specifically for RuntimeDxe and contains
 # extra routines to register for VirtualAddressChangeEvents.
 #
-##
 # Copyright (c) Microsoft Corporation.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##

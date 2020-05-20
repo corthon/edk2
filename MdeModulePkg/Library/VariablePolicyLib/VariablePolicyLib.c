@@ -210,10 +210,13 @@ EvaluatePolicyMatch (
   OUT       UINT8                   *MatchPriority    OPTIONAL
   )
 {
-  BOOLEAN     Result = FALSE;
+  BOOLEAN     Result;
   CHAR16      *PolicyName;
-  UINT8       CalculatedPriority = MATCH_PRIORITY_EXACT;
+  UINT8       CalculatedPriority;
   UINTN       Index;
+
+  Result = FALSE;
+  CalculatedPriority = MATCH_PRIORITY_EXACT;
 
   // Step 1: If the GUID doesn't match, we're done. No need to evaluate anything else.
   if (!CompareGuid( &EvalEntry->Namespace, VendorGuid )) {
@@ -288,17 +291,19 @@ GetBestPolicyMatch (
   OUT       UINT8             *ReturnPriority  OPTIONAL
   )
 {
-  VARIABLE_POLICY_ENTRY   *BestResult = NULL;
+  VARIABLE_POLICY_ENTRY   *BestResult;
   VARIABLE_POLICY_ENTRY   *CurrentEntry;
   UINT8                   MatchPriority;
   UINT8                   CurrentPriority;
   UINTN                   Index;
 
+  BestResult = NULL;
+
   // Walk all entries in the table, looking for matches.
   CurrentEntry = (VARIABLE_POLICY_ENTRY*)mPolicyTable;
   for (Index = 0; Index < mCurrentTableCount; Index++) {
     // Check for a match.
-    if (EvaluatePolicyMatch( CurrentEntry, VariableName, VendorGuid, &CurrentPriority ) == TRUE) {
+    if (EvaluatePolicyMatch( CurrentEntry, VariableName, VendorGuid, &CurrentPriority )) {
       // If match is better, take it.
       if (BestResult == NULL || CurrentPriority < MatchPriority) {
         BestResult = CurrentEntry;
@@ -443,11 +448,13 @@ ValidateSetVariable (
   BOOLEAN                             IsDel;
   VARIABLE_POLICY_ENTRY               *ActivePolicy;
   EFI_STATUS                          Status;
-  EFI_STATUS                          ReturnStatus = EFI_SUCCESS;
+  EFI_STATUS                          ReturnStatus;
   VARIABLE_LOCK_ON_VAR_STATE_POLICY   *StateVarPolicy;
   CHAR16                              *StateVarName;
   UINTN                               StateVarSize;
   UINT8                               StateVar;
+
+  ReturnStatus = EFI_SUCCESS;
 
   if (!IsVariablePolicyLibInitialized()) {
     ReturnStatus = EFI_NOT_READY;
@@ -455,7 +462,7 @@ ValidateSetVariable (
   }
 
   // Bail if the protections are currently disabled.
-  if (mProtectionDisabled == TRUE) {
+  if (mProtectionDisabled) {
     ReturnStatus = EFI_SUCCESS;
     goto Exit;
   }

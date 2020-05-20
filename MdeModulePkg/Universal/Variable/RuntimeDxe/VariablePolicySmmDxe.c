@@ -29,6 +29,15 @@ VOID      *mMmCommunicationBuffer;
 UINTN     mMmCommunicationBufferSize;
 EFI_LOCK  mMmCommunicationLock;
 
+/**
+  Internal helper function to consolidate communication method.
+
+  @param[in,out]  CommBuffer
+  @param[in,out]  CommSize    Size of the CommBuffer.
+
+  @retval   EFI_STATUS    Result from communication method.
+
+**/
 STATIC
 EFI_STATUS
 InternalMmCommunicate (
@@ -419,11 +428,13 @@ InitMmCommonCommBuffer (
   OUT     VOID        **LocatedBuffer
   )
 {
-  EFI_STATUS                  Status = EFI_ABORTED;
+  EFI_STATUS                  Status;
   UINTN                       Index;
   UINTN                       CurrentRegionSize;
   EFI_MEMORY_DESCRIPTOR       *SmmCommMemRegion;
   EDKII_PI_SMM_COMMUNICATION_REGION_TABLE   *PiSmmCommunicationRegionTable;
+
+  Status = EFI_ABORTED;
 
   // Make sure that we're working with good pointers.
   if (BufferSize == NULL || LocatedBuffer == NULL) {
@@ -554,12 +565,17 @@ VariablePolicySmmDxeMain (
   IN    EFI_SYSTEM_TABLE            *SystemTable
   )
 {
-  EFI_STATUS              Status = EFI_SUCCESS;
-  BOOLEAN                 ProtocolInstalled = FALSE;
-  BOOLEAN                 CallbackRegistered = FALSE;
-  BOOLEAN                 VirtualAddressChangeRegistered = FALSE;
+  EFI_STATUS              Status;
+  BOOLEAN                 ProtocolInstalled;
+  BOOLEAN                 CallbackRegistered;
+  BOOLEAN                 VirtualAddressChangeRegistered;
   EFI_EVENT               ReadyToBootEvent;
   EFI_EVENT               VirtualAddressChangeEvent;
+
+  Status = EFI_SUCCESS;
+  ProtocolInstalled = FALSE;
+  CallbackRegistered = FALSE;
+  VirtualAddressChangeRegistered = FALSE;
 
   // Update the minimum buffer size.
   mMmCommunicationBufferSize = VAR_CHECK_POLICY_MM_COMM_BUFFER_SIZE;

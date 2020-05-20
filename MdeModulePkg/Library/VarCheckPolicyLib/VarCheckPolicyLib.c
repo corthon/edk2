@@ -44,7 +44,7 @@ VariableServiceGetVariable (
   and poll and toggle the enforcement of variable policies.
 
   @param[in]      DispatchHandle      All parameters standard to MM communications convention.
-  @param[in]      RegisterContex      All parameters standard to MM communications convention.
+  @param[in]      RegisterContext     All parameters standard to MM communications convention.
   @param[in,out]  CommBuffer          All parameters standard to MM communications convention.
   @param[in,out]  CommBufferSize      All parameters standard to MM communications convention.
 
@@ -64,7 +64,7 @@ VarCheckPolicyLibMmiHandler (
   IN OUT UINTN                        *CommBufferSize
   )
 {
-  EFI_STATUS                                Status = EFI_SUCCESS;
+  EFI_STATUS                                Status;
   EFI_STATUS                                SubCommandStatus;
   VAR_CHECK_POLICY_COMM_HEADER              *PolicyCommmHeader;
   VAR_CHECK_POLICY_COMM_IS_ENABLED_PARAMS   *IsEnabledParams;
@@ -78,6 +78,8 @@ VarCheckPolicyLibMmiHandler (
   static UINT8                              *PaginationCache = NULL;
   static UINTN                              PaginationCacheSize = 0;
   static UINT32                             CurrentPaginationCommand = 0;
+
+  Status = EFI_SUCCESS;
 
   //
   // Validate some input parameters.

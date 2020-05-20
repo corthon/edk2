@@ -84,6 +84,19 @@ EFI_GUID    mTestGuid3 = TEST_GUID_3;
 
 ///=== HELPER FUNCTIONS ===========================================================================
 
+/**
+  Helper function to initialize a VARIABLE_POLICY_ENTRY structure with a Name and StateName.
+
+  Takes care of all the messy packing.
+
+  @param[in,out]  Entry
+  @param[in]      Name        [Optional]
+  @param[in]      StateName   [Optional]
+
+  @retval     TRUE
+  @retval     FALSE
+
+**/
 STATIC
 BOOLEAN
 InitExpVarPolicyStrings (
@@ -117,6 +130,9 @@ InitExpVarPolicyStrings (
   return TRUE;
 }
 
+/**
+  Mocked version of GetVariable, for testing.
+**/
 EFI_STATUS
 EFIAPI
 StubGetVariableNull (
@@ -141,10 +157,10 @@ StubGetVariableNull (
   MockedData = (VOID*)mock();
   MockedReturn = (EFI_STATUS)mock();
 
-  if (Attributes) {
+  if (Attributes != NULL) {
     *Attributes = MockedAttr;
   }
-  if (Data && !EFI_ERROR(MockedReturn)) {
+  if (Data != NULL && !EFI_ERROR(MockedReturn)) {
     CopyMem( Data, MockedData, MockedDataSize );
   }
 
@@ -157,6 +173,12 @@ StubGetVariableNull (
 // Anything you think might be helpful that isn't a test itself.
 //
 
+/**
+  This is a common setup function that will ensure the library is always initialized
+  with the stubbed GetVariable.
+
+  Not used by all test cases, but by most.
+**/
 STATIC
 UNIT_TEST_STATUS
 LibInitMocked (
@@ -166,6 +188,10 @@ LibInitMocked (
   return EFI_ERROR(InitVariablePolicyLib( StubGetVariableNull )) ? UNIT_TEST_ERROR_PREREQUISITE_NOT_MET : UNIT_TEST_PASSED;
 }
 
+/**
+  Common cleanup function to make sure that the library is always de-initialized prior
+  to the next test case.
+*/
 STATIC
 VOID
 LibCleanup (
@@ -180,6 +206,9 @@ LibCleanup (
 
 ///===== ARCHITECTURAL SUITE ==================================================
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToInitAndDeinitTheLibrary (
@@ -200,6 +229,9 @@ ShouldBeAbleToInitAndDeinitTheLibrary (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldNotBeAbleToInitializeTheLibraryTwice (
@@ -214,6 +246,9 @@ ShouldNotBeAbleToInitializeTheLibraryTwice (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldFailDeinitWithoutInit (
@@ -226,6 +261,9 @@ ShouldFailDeinitWithoutInit (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ApiCommandsShouldNotRespondIfLibIsUninitialized (
@@ -280,6 +318,9 @@ EvaluatePolicyMatch (
   OUT       UINT8                   *MatchPriority    OPTIONAL
   );
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 PoliciesShouldMatchByNameAndGuid (
@@ -315,6 +356,9 @@ PoliciesShouldMatchByNameAndGuid (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 WildcardPoliciesShouldMatchDigits (
@@ -353,6 +397,9 @@ WildcardPoliciesShouldMatchDigits (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 WildcardPoliciesShouldMatchDigitsAdvanced (
@@ -400,6 +447,9 @@ WildcardPoliciesShouldMatchDigitsAdvanced (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 WildcardPoliciesShouldMatchNamespaces (
@@ -435,6 +485,9 @@ WildcardPoliciesShouldMatchNamespaces (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 MatchPrioritiesShouldFollowRules (
@@ -491,6 +544,9 @@ MatchPrioritiesShouldFollowRules (
 
 ///=== POLICY MANIPULATION SUITE ==============================================
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldAllowNamespaceWildcards (
@@ -517,6 +573,9 @@ RegisterShouldAllowNamespaceWildcards (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldAllowStateVarsForNamespaces (
@@ -550,6 +609,9 @@ RegisterShouldAllowStateVarsForNamespaces (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectNullPointers (
@@ -560,6 +622,9 @@ RegisterShouldRejectNullPointers (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectBadRevisions (
@@ -587,6 +652,9 @@ RegisterShouldRejectBadRevisions (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectBadSizes (
@@ -614,6 +682,9 @@ RegisterShouldRejectBadSizes (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectBadOffsets (
@@ -661,6 +732,9 @@ RegisterShouldRejectBadOffsets (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectMissingStateStrings (
@@ -701,6 +775,9 @@ RegisterShouldRejectMissingStateStrings (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectStringsMissingNull (
@@ -742,6 +819,9 @@ RegisterShouldRejectStringsMissingNull (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectMalformedStrings (
@@ -783,6 +863,9 @@ RegisterShouldRejectMalformedStrings (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectUnpackedPolicies (
@@ -828,6 +911,9 @@ RegisterShouldRejectUnpackedPolicies (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectInvalidNameCharacters (
@@ -861,6 +947,9 @@ RegisterShouldRejectInvalidNameCharacters (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectBadPolicyConstraints (
@@ -889,6 +978,9 @@ RegisterShouldRejectBadPolicyConstraints (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectUnknownLockPolicies (
@@ -918,6 +1010,9 @@ RegisterShouldRejectUnknownLockPolicies (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectPolicesWithTooManyWildcards (
@@ -945,6 +1040,9 @@ RegisterShouldRejectPolicesWithTooManyWildcards (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 RegisterShouldRejectDuplicatePolicies (
@@ -972,6 +1070,9 @@ RegisterShouldRejectDuplicatePolicies (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 MinAndMaxSizePoliciesShouldBeHonored (
@@ -1034,6 +1135,9 @@ MinAndMaxSizePoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 AttributeMustPoliciesShouldBeHonored (
@@ -1104,6 +1208,9 @@ AttributeMustPoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 AttributeCantPoliciesShouldBeHonored (
@@ -1166,6 +1273,9 @@ AttributeCantPoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 VariablesShouldBeDeletableRegardlessOfSize (
@@ -1211,6 +1321,9 @@ VariablesShouldBeDeletableRegardlessOfSize (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 LockNowPoliciesShouldBeHonored (
@@ -1257,6 +1370,9 @@ LockNowPoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 LockOnCreatePoliciesShouldBeHonored (
@@ -1326,6 +1442,9 @@ LockOnCreatePoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 LockOnStatePoliciesShouldBeHonored (
@@ -1442,6 +1561,9 @@ LockOnStatePoliciesShouldBeHonored (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 LockOnStatePoliciesShouldApplyToNamespaces (
@@ -1546,6 +1668,9 @@ LockOnStatePoliciesShouldApplyToNamespaces (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 LockOnStateShouldHandleErrorsGracefully (
@@ -1643,6 +1768,9 @@ LockOnStateShouldHandleErrorsGracefully (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 BestMatchPriorityShouldBeObeyed (
@@ -1781,6 +1909,9 @@ BestMatchPriorityShouldBeObeyed (
 
 ///=== POLICY UTILITY SUITE ===================================================
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToLockInterface (
@@ -1817,6 +1948,9 @@ ShouldBeAbleToLockInterface (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToDisablePolicyEnforcement (
@@ -1860,6 +1994,9 @@ ShouldBeAbleToDisablePolicyEnforcement (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldNotBeAbleToDisablePoliciesTwice (
@@ -1878,6 +2015,9 @@ ShouldNotBeAbleToDisablePoliciesTwice (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToAddNewPoliciesAfterDisabled (
@@ -1912,6 +2052,9 @@ ShouldBeAbleToAddNewPoliciesAfterDisabled (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToLockAfterDisabled (
@@ -1931,6 +2074,9 @@ ShouldBeAbleToLockAfterDisabled (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToDumpThePolicyTable (
@@ -1994,6 +2140,9 @@ ShouldBeAbleToDumpThePolicyTable (
   return UNIT_TEST_PASSED;
 }
 
+/**
+  Test Case
+*/
 UNIT_TEST_STATUS
 EFIAPI
 ShouldBeAbleToDumpThePolicyTableAfterDisabled (
@@ -2085,7 +2234,9 @@ ShouldBeAbleToDumpThePolicyTableAfterDisabled (
   @retval other           Some error occured when executing this entry point.
 
 **/
-int main ()
+int
+main (
+  )
 {
   EFI_STATUS                  Status;
   UNIT_TEST_FRAMEWORK_HANDLE  Framework = NULL;
@@ -2276,7 +2427,7 @@ int main ()
   Status = RunAllTestSuites( Framework );
 
 EXIT:
-  if (Framework)
+  if (Framework != NULL)
   {
     FreeUnitTestFramework( Framework );
   }

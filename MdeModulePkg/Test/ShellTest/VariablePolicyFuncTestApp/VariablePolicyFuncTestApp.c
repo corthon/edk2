@@ -1,10 +1,8 @@
-/**
-@file
+/** @file
 UEFI Shell based application for unit testing the Variable Policy Protocol.
 
 Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
-
 **/
 
 #include <Uefi.h>
@@ -38,9 +36,9 @@ EFI_GUID mTestNamespaceGuid1 = { 0x3b389299, 0xabaf, 0x433b, { 0xa4, 0xa9, 0x23,
 EFI_GUID mTestNamespaceGuid2 = { 0x4c49a3aa, 0xbcb0, 0x544c, { 0xb5, 0xba, 0x34, 0xd9, 0x55, 0x13, 0x0d, 0xbe } };
 EFI_GUID mTestNamespaceGuid3 = { 0x5d5ab4bb, 0xcdc1, 0x655d, { 0xc6, 0xcb, 0x45, 0xea, 0x66, 0x24, 0x1e, 0xcf } };
 
-//
-// Pre-req
-//
+/**
+  Prerequisite for most test cases.
+**/
 UNIT_TEST_STATUS
 EFIAPI
 LocateVarPolicyPreReq (
@@ -61,9 +59,9 @@ LocateVarPolicyPreReq (
 
 } // LocateVarPolicyPreReq
 
-//
-// Getting Started tests:
-//
+/**
+  Getting Started tests.
+**/
 UNIT_TEST_STATUS
 CheckVpEnabled (
   IN UNIT_TEST_CONTEXT           Context
@@ -91,9 +89,9 @@ CheckVpRevision (
   return UNIT_TEST_PASSED;
 } // CheckVpRevision
 
-//
-// NoLock Policy tests:
-//
+/**
+  NoLock Policy tests.
+**/
 UNIT_TEST_STATUS
 TestMinSizeNoLock (
   IN UNIT_TEST_CONTEXT           Context
@@ -650,9 +648,9 @@ TestPolicyprioritizationNoLock (
   return UNIT_TEST_PASSED;
 } // TestPolicyprioritizationNoLock
 
-//
-// LockNow Policy tests:
-//
+/**
+  LockNow Policy tests.
+**/
 UNIT_TEST_STATUS
 TestExistingVarLockNow (
   IN UNIT_TEST_CONTEXT           Context
@@ -760,9 +758,9 @@ TestNonexistentVarLockNow (
   return UNIT_TEST_PASSED;
 } // TestNonexistentVarLockNow
 
-//
-// LockOnCreate Policy tests:
-//
+/**
+  LockOnCreate Policy tests.
+**/
 UNIT_TEST_STATUS
 TestExistingVarLockOnCreate (
   IN UNIT_TEST_CONTEXT           Context
@@ -918,9 +916,9 @@ TestNonexistentVarLockOnCreate (
   return UNIT_TEST_PASSED;
 } // TestNonexistentVarLockOnCreate
 
-//
-// LockOnVarState Policy tests:
-//
+/**
+  LockOnVarState Policy tests.
+**/
 UNIT_TEST_STATUS
 TestLockOnVarStateBeforeCreate (
   IN UNIT_TEST_CONTEXT           Context
@@ -1237,9 +1235,9 @@ TestLockOnVarStateWrongValueTrigger (
   return UNIT_TEST_PASSED;
 } // TestLockOnVarStateWrongValueTrigger
 
-//
-// Invalid policy tests:
-//
+/**
+  Invalid policy tests.
+**/
 UNIT_TEST_STATUS
 TestInvalidAttributesPolicy (
   IN UNIT_TEST_CONTEXT           Context
@@ -1436,9 +1434,9 @@ TestInvalidPolicyTypePolicy (
   return UNIT_TEST_PASSED;
 } // TestInvalidPolicyTypePolicy
 
-//
-// Test dumping policy:
-//
+/**
+  Test dumping policy.
+**/
 UNIT_TEST_STATUS
 TestDumpPolicy (
   IN UNIT_TEST_CONTEXT           Context
@@ -1471,9 +1469,9 @@ TestDumpPolicy (
   return UNIT_TEST_PASSED;
 } // TestDumpPolicy
 
-//
-// Test policy version:
-//
+/**
+  Test policy version.
+**/
 UNIT_TEST_STATUS
 TestPolicyVersion (
   IN UNIT_TEST_CONTEXT           Context
@@ -1505,9 +1503,9 @@ TestPolicyVersion (
   return UNIT_TEST_PASSED;
 } // TestPolicyVersion
 
-//
-// Lock Policy Tests:
-//
+/**
+  Lock Policy Tests.
+**/
 UNIT_TEST_STATUS
 LockPolicyEngineTests (
   IN UNIT_TEST_CONTEXT           Context
@@ -1616,9 +1614,9 @@ LockPolicyEngineTests (
   return UNIT_TEST_PASSED;
 } // LockPolicyEngineTests
 
-//
-// Save context and reboot after the lock policy test suite
-//
+/**
+  Save context and reboot after the lock policy test suite.
+**/
 STATIC
 VOID
 SaveContextAndReboot (
@@ -1657,9 +1655,9 @@ SaveContextAndReboot (
   return;
 } // SaveContextAndReboot
 
-//
-// Disable policy tests:
-//
+/**
+  Disable policy tests.
+**/
 UNIT_TEST_STATUS
 DisablePolicyEngineTests (
   IN UNIT_TEST_CONTEXT           Context
@@ -1702,9 +1700,9 @@ DisablePolicyEngineTests (
   return UNIT_TEST_PASSED;
 } // DisablePolicyEngineTests
 
-//
-// Final Cleanup: delete some variables earlier test cases created
-//
+/**
+  Final Cleanup: delete some variables earlier test cases created.
+**/
 STATIC
 VOID
 FinalCleanup (
@@ -1765,7 +1763,7 @@ FinalCleanup (
 
 /**
 
-  Main fuction sets up the unit test environment
+  Main fuction sets up the unit test environment.
 
 **/
 EFI_STATUS
@@ -1774,7 +1772,7 @@ UefiMain (
   IN EFI_SYSTEM_TABLE* SystemTable)
 {
   EFI_STATUS                  Status;
-  UNIT_TEST_FRAMEWORK_HANDLE  mFw = NULL;
+  UNIT_TEST_FRAMEWORK_HANDLE  Framework;
   UNIT_TEST_SUITE_HANDLE      GettingStartedTestSuite;
   UNIT_TEST_SUITE_HANDLE      NoLockPoliciesTestSuite;
   UNIT_TEST_SUITE_HANDLE      LockNowPoliciesTestSuite;
@@ -1786,14 +1784,24 @@ UefiMain (
   UNIT_TEST_SUITE_HANDLE      LockPolicyTestSuite;
   UNIT_TEST_SUITE_HANDLE      DisablePolicyTestSuite;
 
+  Framework = NULL;
   GettingStartedTestSuite = NULL;
+  NoLockPoliciesTestSuite = NULL;
+  LockNowPoliciesTestSuite = NULL;
+  LockOnCreatePoliciesTestSuite = NULL;
+  LockOnVarStatePoliciesTestSuite = NULL;
+  InvalidPoliciesTestSuite = NULL;
+  DumpPolicyTestSuite = NULL;
+  PolicyVersionTestSuite = NULL;  
+  LockPolicyTestSuite = NULL;
+  DisablePolicyTestSuite = NULL;
 
   DEBUG ((DEBUG_INFO, "%a v%a\n", UNIT_TEST_APP_NAME, UNIT_TEST_APP_VERSION));
 
   //
   // Start setting up the test framework for running the tests.
   //
-  Status = InitUnitTestFramework (&mFw, UNIT_TEST_APP_NAME, gEfiCallerBaseName, UNIT_TEST_APP_VERSION);
+  Status = InitUnitTestFramework (&Framework, UNIT_TEST_APP_NAME, gEfiCallerBaseName, UNIT_TEST_APP_VERSION);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in InitUnitTestFramework. Status = %r\n", Status));
     goto EXIT;
@@ -1802,7 +1810,7 @@ UefiMain (
   //
   // Test suite 1: Getting Started. Get VP protocol, check state, log revision
   //
-  Status = CreateUnitTestSuite (&GettingStartedTestSuite, mFw, "Getting Started", "Common.VP.GettingStarted", NULL, NULL);
+  Status = CreateUnitTestSuite (&GettingStartedTestSuite, Framework, "Getting Started", "Common.VP.GettingStarted", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Getting Started Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1814,7 +1822,7 @@ UefiMain (
   //
   // Test suite 2: Test NoLock Policies
   //
-  Status = CreateUnitTestSuite (&NoLockPoliciesTestSuite, mFw, "Exercise NoLock Policies", "Common.VP.NoLockPolicies", NULL, NULL);
+  Status = CreateUnitTestSuite (&NoLockPoliciesTestSuite, Framework, "Exercise NoLock Policies", "Common.VP.NoLockPolicies", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the NoLock Policies Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1831,7 +1839,7 @@ UefiMain (
   //
   // Test suite 3: Test LockNow policies
   //
-  Status = CreateUnitTestSuite (&LockNowPoliciesTestSuite, mFw, "Exercise LockNow Policies", "Common.VP.LockNowPolicies", NULL, NULL);
+  Status = CreateUnitTestSuite (&LockNowPoliciesTestSuite, Framework, "Exercise LockNow Policies", "Common.VP.LockNowPolicies", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the LockNow Policies Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1843,7 +1851,7 @@ UefiMain (
   //
   // Test suite 4: Test LockOnCreate policies
   //
-  Status = CreateUnitTestSuite (&LockOnCreatePoliciesTestSuite, mFw, "Exercise LockOnCreate Policies", "Common.VP.LockOnCreate", NULL, NULL);
+  Status = CreateUnitTestSuite (&LockOnCreatePoliciesTestSuite, Framework, "Exercise LockOnCreate Policies", "Common.VP.LockOnCreate", NULL, NULL);
   if (EFI_ERROR (Status))
   {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the LockOnCreate Policies Test Suite\n"));
@@ -1856,7 +1864,7 @@ UefiMain (
   //
   // Test suite 5: Test LockOnVarState policies
   //
-  Status = CreateUnitTestSuite (&LockOnVarStatePoliciesTestSuite, mFw, "Exercise LockOnVarState Policies", "Common.VP.LockOnVarState", NULL, NULL);
+  Status = CreateUnitTestSuite (&LockOnVarStatePoliciesTestSuite, Framework, "Exercise LockOnVarState Policies", "Common.VP.LockOnVarState", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the LockOnVarState Policies Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1870,7 +1878,7 @@ UefiMain (
   //
   // Test suite 6: Test registering invalid policies
   //
-  Status = CreateUnitTestSuite (&InvalidPoliciesTestSuite, mFw, "Attempt registering invalid policies", "Common.VP.InvalidPolicies", NULL, NULL);
+  Status = CreateUnitTestSuite (&InvalidPoliciesTestSuite, Framework, "Attempt registering invalid policies", "Common.VP.InvalidPolicies", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Invalid Policies Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1884,7 +1892,7 @@ UefiMain (
   //
   // Test suite 7: Test dumping the policy
   //
-  Status = CreateUnitTestSuite (&DumpPolicyTestSuite, mFw, "Attempt dumping policy", "Common.VP.DumpPolicy", NULL, NULL);
+  Status = CreateUnitTestSuite (&DumpPolicyTestSuite, Framework, "Attempt dumping policy", "Common.VP.DumpPolicy", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Dump Policy Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1895,7 +1903,7 @@ UefiMain (
   //
   // Test suite 8: Test policy version
   //
-  Status = CreateUnitTestSuite (&PolicyVersionTestSuite, mFw, "Use non-zero policy version", "Common.VP.PolicyVersion", NULL, NULL);
+  Status = CreateUnitTestSuite (&PolicyVersionTestSuite, Framework, "Use non-zero policy version", "Common.VP.PolicyVersion", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Policy Version Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1906,7 +1914,7 @@ UefiMain (
   //
   // Test suite 9: Lock VPE and test implications
   //
-  Status = CreateUnitTestSuite (&LockPolicyTestSuite, mFw, "Lock policy, test it", "Common.VP.LockPolicyTests", NULL, NULL);
+  Status = CreateUnitTestSuite (&LockPolicyTestSuite, Framework, "Lock policy, test it", "Common.VP.LockPolicyTests", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Lock Policy Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1918,7 +1926,7 @@ UefiMain (
   //
   // Test suite 10: Disable var policy and confirm expected behavior
   //
-  Status = CreateUnitTestSuite (&DisablePolicyTestSuite, mFw, "Disable policy, test it", "Common.VP.DisablePolicyTests", NULL, NULL);
+  Status = CreateUnitTestSuite (&DisablePolicyTestSuite, Framework, "Disable policy, test it", "Common.VP.DisablePolicyTests", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for the Disable Policy Test Suite\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -1931,11 +1939,11 @@ UefiMain (
   //
   // Execute the tests.
   //
-  Status = RunAllTestSuites (mFw);
+  Status = RunAllTestSuites (Framework);
 
 EXIT:
-  if (mFw) {
-    FreeUnitTestFramework (mFw);
+  if (Framework != NULL) {
+    FreeUnitTestFramework (Framework);
   }
 
   return Status;
