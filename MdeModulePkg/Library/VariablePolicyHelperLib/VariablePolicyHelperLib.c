@@ -282,14 +282,14 @@ CreateVarStateVariablePolicy (
 EFI_STATUS
 EFIAPI
 RegisterBasicVariablePolicy (
-  IN        VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
-  IN CONST  EFI_GUID          *Namespace,
-  IN CONST  CHAR16            *Name OPTIONAL,
-  IN        UINT32            MinSize,
-  IN        UINT32            MaxSize,
-  IN        UINT32            AttributesMustHave,
-  IN        UINT32            AttributesCantHave,
-  IN        UINT8             LockPolicyType
+  IN        EDKII_VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
+  IN CONST  EFI_GUID                        *Namespace,
+  IN CONST  CHAR16                          *Name OPTIONAL,
+  IN        UINT32                          MinSize,
+  IN        UINT32                          MaxSize,
+  IN        UINT32                          AttributesMustHave,
+  IN        UINT32                          AttributesCantHave,
+  IN        UINT8                           LockPolicyType
   )
 {
   VARIABLE_POLICY_ENTRY   *NewEntry;
@@ -349,16 +349,16 @@ RegisterBasicVariablePolicy (
 EFI_STATUS
 EFIAPI
 RegisterVarStateVariablePolicy (
-  IN        VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
-  IN CONST  EFI_GUID          *Namespace,
-  IN CONST  CHAR16            *Name OPTIONAL,
-  IN        UINT32            MinSize,
-  IN        UINT32            MaxSize,
-  IN        UINT32            AttributesMustHave,
-  IN        UINT32            AttributesCantHave,
-  IN CONST  EFI_GUID          *VarStateNamespace,
-  IN CONST  CHAR16            *VarStateName,
-  IN        UINT8             VarStateValue
+  IN        EDKII_VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
+  IN CONST  EFI_GUID                        *Namespace,
+  IN CONST  CHAR16                          *Name OPTIONAL,
+  IN        UINT32                          MinSize,
+  IN        UINT32                          MaxSize,
+  IN        UINT32                          AttributesMustHave,
+  IN        UINT32                          AttributesCantHave,
+  IN CONST  EFI_GUID                        *VarStateNamespace,
+  IN CONST  CHAR16                          *VarStateName,
+  IN        UINT8                           VarStateValue
   )
 {
   VARIABLE_POLICY_ENTRY   *NewEntry;

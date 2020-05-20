@@ -72,7 +72,7 @@
   gEfiSmmVariableProtocolGuid
   gEdkiiVariableLockProtocolGuid                ## PRODUCES
   gEdkiiVarCheckProtocolGuid                    ## PRODUCES
-  gVariablePolicyProtocolGuid                   ## PRODUCES
+  gEdkiiVariablePolicyProtocolGuid              ## PRODUCES
 
 [FeaturePcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdEnableVariableRuntimeCache           ## CONSUMES

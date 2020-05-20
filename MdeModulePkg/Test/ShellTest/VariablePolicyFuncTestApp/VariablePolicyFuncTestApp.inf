@@ -39,4 +39,4 @@
   VariablePolicyHelperLib
 
 [Protocols]
-  gVariablePolicyProtocolGuid
+  gEdkiiVariablePolicyProtocolGuid

@@ -21,7 +21,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include "Variable.h"
 
-VARIABLE_POLICY_PROTOCOL        mVariablePolicyProtocol;
+EDKII_VARIABLE_POLICY_PROTOCOL  mVariablePolicyProtocol;
 EFI_MM_COMMUNICATION_PROTOCOL   *mMmCommunication;
 
 VOID      *mMmCommunicationBuffer;
@@ -569,7 +569,7 @@ VariablePolicySmmDxeMain (
   }
 
   // Configure the VariablePolicy protocol structure.
-  mVariablePolicyProtocol.Revision                = VARIABLE_POLICY_PROTOCOL_REVISION;
+  mVariablePolicyProtocol.Revision                = EDKII_VARIABLE_POLICY_PROTOCOL_REVISION;
   mVariablePolicyProtocol.DisableVariablePolicy   = ProtocolDisableVariablePolicy;
   mVariablePolicyProtocol.IsVariablePolicyEnabled = ProtocolIsVariablePolicyEnabled;
   mVariablePolicyProtocol.RegisterVariablePolicy  = ProtocolRegisterVariablePolicy;
@@ -578,7 +578,7 @@ VariablePolicySmmDxeMain (
 
   // Register all the protocols and return the status.
   Status = gBS->InstallMultipleProtocolInterfaces( &ImageHandle,
-                                                   &gVariablePolicyProtocolGuid, &mVariablePolicyProtocol,
+                                                   &gEdkiiVariablePolicyProtocolGuid, &mVariablePolicyProtocol,
                                                    NULL );
   if (EFI_ERROR( Status )) {
     DEBUG(( DEBUG_ERROR, "%a - Failed to install protocol! %r\n", __FUNCTION__, Status ));
@@ -628,7 +628,7 @@ Exit:
   // has been successfully done.
   if (EFI_ERROR( Status )) {
     if (ProtocolInstalled) {
-      gBS->UninstallProtocolInterface( &ImageHandle, &gVariablePolicyProtocolGuid, &mVariablePolicyProtocol );
+      gBS->UninstallProtocolInterface( &ImageHandle, &gEdkiiVariablePolicyProtocolGuid, &mVariablePolicyProtocol );
     }
     if (CallbackRegistered) {
       gBS->CloseEvent( ReadyToBootEvent );

@@ -27,7 +27,7 @@ VOID                                *mFtwRegistration          = NULL;
 VOID                                ***mVarCheckAddressPointer = NULL;
 UINTN                               mVarCheckAddressPointerCount = 0;
 EDKII_VARIABLE_LOCK_PROTOCOL        mVariableLock              = { VariableLockRequestToLock };
-VARIABLE_POLICY_PROTOCOL            mVariablePolicyProtocol    = { VARIABLE_POLICY_PROTOCOL_REVISION,
+EDKII_VARIABLE_POLICY_PROTOCOL      mVariablePolicyProtocol    = { EDKII_VARIABLE_POLICY_PROTOCOL_REVISION,
                                                                     DisableVariablePolicy,
                                                                     ProtocolIsVariablePolicyEnabled,
                                                                     RegisterVariablePolicy,
@@ -623,7 +623,7 @@ VariableServiceInitialize (
   ASSERT_EFI_ERROR (Status);
   Status = gBS->InstallMultipleProtocolInterfaces (
                     &mHandle,
-                    &gVariablePolicyProtocolGuid,
+                    &gEdkiiVariablePolicyProtocolGuid,
                     &mVariablePolicyProtocol,
                     NULL
                     );

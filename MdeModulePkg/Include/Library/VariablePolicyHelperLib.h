@@ -7,8 +7,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
 
-#ifndef _VARIABLE_POLICY_HELPER_LIB_H_
-#define _VARIABLE_POLICY_HELPER_LIB_H_
+#ifndef _EDKII_VARIABLE_POLICY_HELPER_LIB_H_
+#define _EDKII_VARIABLE_POLICY_HELPER_LIB_H_
 
 #include <Protocol/VariablePolicy.h>
 
@@ -114,14 +114,14 @@ CreateVarStateVariablePolicy (
 EFI_STATUS
 EFIAPI
 RegisterBasicVariablePolicy (
-  IN        VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
-  IN CONST  EFI_GUID          *Namespace,
-  IN CONST  CHAR16            *Name OPTIONAL,
-  IN        UINT32            MinSize,
-  IN        UINT32            MaxSize,
-  IN        UINT32            AttributesMustHave,
-  IN        UINT32            AttributesCantHave,
-  IN        UINT8             LockPolicyType
+  IN        EDKII_VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
+  IN CONST  EFI_GUID                        *Namespace,
+  IN CONST  CHAR16                          *Name OPTIONAL,
+  IN        UINT32                          MinSize,
+  IN        UINT32                          MaxSize,
+  IN        UINT32                          AttributesMustHave,
+  IN        UINT32                          AttributesCantHave,
+  IN        UINT8                           LockPolicyType
   );
 
 
@@ -149,16 +149,16 @@ RegisterBasicVariablePolicy (
 EFI_STATUS
 EFIAPI
 RegisterVarStateVariablePolicy (
-  IN        VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
-  IN CONST  EFI_GUID          *Namespace,
-  IN CONST  CHAR16            *Name OPTIONAL,
-  IN        UINT32            MinSize,
-  IN        UINT32            MaxSize,
-  IN        UINT32            AttributesMustHave,
-  IN        UINT32            AttributesCantHave,
-  IN CONST  EFI_GUID          *VarStateNamespace,
-  IN CONST  CHAR16            *VarStateName,
-  IN        UINT8             VarStateValue
+  IN        EDKII_VARIABLE_POLICY_PROTOCOL  *VariablePolicy,
+  IN CONST  EFI_GUID                        *Namespace,
+  IN CONST  CHAR16                          *Name OPTIONAL,
+  IN        UINT32                          MinSize,
+  IN        UINT32                          MaxSize,
+  IN        UINT32                          AttributesMustHave,
+  IN        UINT32                          AttributesCantHave,
+  IN CONST  EFI_GUID                        *VarStateNamespace,
+  IN CONST  CHAR16                          *VarStateName,
+  IN        UINT8                           VarStateValue
   );
 
-#endif // _VARIABLE_POLICY_HELPER_LIB_H_
+#endif // _EDKII_VARIABLE_POLICY_HELPER_LIB_H_

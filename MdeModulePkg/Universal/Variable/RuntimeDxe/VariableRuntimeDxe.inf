@@ -82,7 +82,7 @@
   gEfiVariableWriteArchProtocolGuid             ## PRODUCES
   gEfiVariableArchProtocolGuid                  ## PRODUCES
   gEdkiiVariableLockProtocolGuid                ## PRODUCES
-  gVariablePolicyProtocolGuid                   ## CONSUMES
+  gEdkiiVariablePolicyProtocolGuid              ## CONSUMES
   gEdkiiVarCheckProtocolGuid                    ## PRODUCES
 
 [Guids]

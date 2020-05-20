@@ -29,7 +29,7 @@ GetActiveFrameworkHandle (
   VOID
   );
 
-VARIABLE_POLICY_PROTOCOL  *mVarPol = NULL;
+EDKII_VARIABLE_POLICY_PROTOCOL  *mVarPol = NULL;
 
 
 EFI_GUID mTestNamespaceGuid1 = { 0x3b389299, 0xabaf, 0x433b, { 0xa4, 0xa9, 0x23, 0xc8, 0x44, 0x02, 0xfc, 0xad } };
@@ -48,7 +48,7 @@ LocateVarPolicyPreReq (
   EFI_STATUS Status;
 
   if (mVarPol == NULL) {
-    Status = gBS->LocateProtocol (&gVariablePolicyProtocolGuid,
+    Status = gBS->LocateProtocol (&gEdkiiVariablePolicyProtocolGuid,
                                   NULL,
                                   (VOID **) &mVarPol);
     UT_ASSERT_NOT_EFI_ERROR (Status);

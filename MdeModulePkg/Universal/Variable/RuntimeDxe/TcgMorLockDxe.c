@@ -111,10 +111,10 @@ MorLockInitAtEndOfDxe (
   )
 {
   EFI_STATUS                        Status;
-  VARIABLE_POLICY_PROTOCOL          *VariablePolicy;
+  EDKII_VARIABLE_POLICY_PROTOCOL    *VariablePolicy;
 
   // First, we obviously need to locate the VariablePolicy protocol.
-  Status = gBS->LocateProtocol( &gVariablePolicyProtocolGuid, NULL, (VOID**)&VariablePolicy );
+  Status = gBS->LocateProtocol( &gEdkiiVariablePolicyProtocolGuid, NULL, (VOID**)&VariablePolicy );
   if (EFI_ERROR( Status )) {
     DEBUG(( DEBUG_ERROR, "%a - Could not locate VariablePolicy protocol! %r\n", __FUNCTION__, Status ));
     return;
