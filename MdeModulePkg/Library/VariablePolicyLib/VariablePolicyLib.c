@@ -30,7 +30,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #endif
 
 // An abstracted GetVariable interface that enables configuration regardless of the environment.
-STATIC  EFI_GET_VARIABLE    mGetVariableHelper = NULL;
+EFI_GET_VARIABLE            mGetVariableHelper = NULL;
 
 // Master switch to lock this entire interface. Does not stop enforcement,
 // just prevents the configuration from being changed for the rest of the boot.
@@ -41,7 +41,7 @@ STATIC  BOOLEAN             mInterfaceLocked = FALSE;
 STATIC  BOOLEAN             mProtectionDisabled = FALSE;
 
 // Table to hold all the current policies.
-STATIC  UINT8               *mPolicyTable = NULL;
+UINT8                       *mPolicyTable = NULL;
 STATIC  UINT32              mCurrentTableSize = 0;
 STATIC  UINT32              mCurrentTableUsage = 0;
 STATIC  UINT32              mCurrentTableCount = 0;
