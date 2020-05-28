@@ -15,14 +15,14 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/MemoryAllocationLib.h>
 
 #include <Protocol/VariablePolicy.h>
-#include <Protocol/MmCommunication.h>
+#include <Protocol/MmCommunication2.h>
 
 #include <Guid/VarCheckPolicyMmi.h>
 
 #include "Variable.h"
 
 EDKII_VARIABLE_POLICY_PROTOCOL  mVariablePolicyProtocol;
-EFI_MM_COMMUNICATION_PROTOCOL   *mMmCommunication;
+EFI_MM_COMMUNICATION2_PROTOCOL  *mMmCommunication;
 
 VOID      *mMmCommunicationBuffer;
 UINTN     mMmCommunicationBufferSize;
@@ -48,7 +48,7 @@ InternalMmCommunicate (
   if (CommBuffer == NULL || CommSize == NULL) {
     return EFI_INVALID_PARAMETER;
   }
-  Status = mMmCommunication->Communicate (mMmCommunication, CommBuffer, CommSize);
+  Status = mMmCommunication->Communicate (mMmCommunication, CommBuffer, CommBuffer, CommSize);
   return Status;
 }
 
@@ -561,7 +561,7 @@ VariablePolicySmmDxeMain (
   }
 
   // Locate the MmCommunication protocol.
-  Status = gBS->LocateProtocol( &gEfiMmCommunicationProtocolGuid, NULL, (VOID**)&mMmCommunication );
+  Status = gBS->LocateProtocol( &gEfiMmCommunication2ProtocolGuid, NULL, (VOID**)&mMmCommunication );
   if (EFI_ERROR( Status )) {
     DEBUG((DEBUG_ERROR, "%a - Failed to locate MmCommunication protocol! %r\n", __FUNCTION__, Status));
     ASSERT_EFI_ERROR( Status );
