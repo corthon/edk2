@@ -430,7 +430,7 @@ InitMmCommonCommBuffer (
 {
   EFI_STATUS                  Status;
 
-  Status = EFI_ABORTED;
+  Status = EFI_SUCCESS;
 
   // Make sure that we're working with good pointers.
   if (BufferSize == NULL || LocatedBuffer == NULL) {
