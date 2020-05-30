@@ -333,9 +333,6 @@
 
   gUefiCpuPkgTokenSpaceGuid.PcdCpuMaxLogicalProcessorNumber|$(MAX_LOGICAL_PROCESSORS)
 
-  # Optional: Omit if VariablePolicy should be always-on.
-  gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable|TRUE
-
 
 ################################################################################
 #
