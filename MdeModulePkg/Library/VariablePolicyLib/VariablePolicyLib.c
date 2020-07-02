@@ -740,8 +740,9 @@ InitVariablePolicyLib (
   EFI_STATUS    Status;
 
   Status = EFI_SUCCESS;
+
   if (mGetVariableHelper != NULL) {
-    Status = EFI_ALREADY_STARTED;
+    return EFI_ALREADY_STARTED;
   }
 
   if (!EFI_ERROR( Status )) {
@@ -802,7 +803,7 @@ DeinitVariablePolicyLib (
   Status = EFI_SUCCESS;
 
   if (mGetVariableHelper == NULL) {
-    Status = EFI_NOT_READY;
+    return EFI_NOT_READY;
   }
 
   if (!EFI_ERROR( Status )) {
