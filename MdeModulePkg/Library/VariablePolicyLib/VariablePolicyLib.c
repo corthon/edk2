@@ -57,12 +57,28 @@ STATIC  UINT32              mCurrentTableCount = 0;
 #define MATCH_PRIORITY_MAX      MATCH_PRIORITY_EXACT
 #define MATCH_PRIORITY_MIN      MAX_UINT8
 
-// ExtraInit/ExtraDeinit functions allow RuntimeDxe to register VirtualAddress callbacks.
+
+/**
+  An extra init hook that enables the RuntimeDxe library instance to
+  register VirtualAddress change callbacks. Among other things.
+
+  @retval     EFI_SUCCESS   Everything is good. Continue with init.
+  @retval     Others        Uh... don't continue.
+
+**/
 EFI_STATUS
 VariablePolicyExtraInit (
   VOID
   );
 
+/**
+  An extra deinit hook that enables the RuntimeDxe library instance to
+  register VirtualAddress change callbacks. Among other things.
+
+  @retval     EFI_SUCCESS   Everything is good. Continue with deinit.
+  @retval     Others        Uh... don't continue.
+
+**/
 EFI_STATUS
 VariablePolicyExtraDeinit (
   VOID
