@@ -158,9 +158,8 @@ IsValidVariablePolicyStructure (
     if ((UINTN)++CheckChar != (UINTN)NewPolicy + NewPolicy->OffsetToName) {
       return FALSE;
     }
-  }
   // If the policy type is any other value, make sure that the LockPolicy structure has a zero length.
-  else {
+  } else {
     if (NewPolicy->OffsetToName != sizeof(VARIABLE_POLICY_ENTRY)) {
       return FALSE;
     }
@@ -266,9 +265,8 @@ EvaluatePolicyMatch (
         if (CalculatedPriority < MATCH_PRIORITY_MIN) {
           CalculatedPriority++;
         }
-      }
       // Otherwise, not a match.
-      else {
+      } else {
         Result = FALSE;
         goto Exit;
       }
@@ -487,8 +485,7 @@ ValidateSetVariable (
   // If so, it will affect which tests are applied.
   if ((DataSize == 0) && ((Attributes & EFI_VARIABLE_APPEND_WRITE) == 0)) {
     IsDel = TRUE;
-  }
-  else {
+  } else {
     IsDel = FALSE;
   }
 
@@ -526,9 +523,8 @@ ValidateSetVariable (
     if (ActivePolicy->LockPolicyType == VARIABLE_POLICY_TYPE_LOCK_NOW) {
       ReturnStatus = EFI_WRITE_PROTECTED;
       goto Exit;
-    }
     // Check for lock on create.
-    else if (ActivePolicy->LockPolicyType == VARIABLE_POLICY_TYPE_LOCK_ON_CREATE) {
+    } else if (ActivePolicy->LockPolicyType == VARIABLE_POLICY_TYPE_LOCK_ON_CREATE) {
       StateVarSize = 0;
       Status = mGetVariableHelper( VariableName,
                                    VendorGuid,
@@ -539,9 +535,8 @@ ValidateSetVariable (
         ReturnStatus = EFI_WRITE_PROTECTED;
         goto Exit;
       }
-    }
     // Check for lock on state variable.
-    else if (ActivePolicy->LockPolicyType == VARIABLE_POLICY_TYPE_LOCK_ON_VAR_STATE) {
+    } else if (ActivePolicy->LockPolicyType == VARIABLE_POLICY_TYPE_LOCK_ON_VAR_STATE) {
       StateVarPolicy = (VARIABLE_LOCK_ON_VAR_STATE_POLICY*)((UINT8*)ActivePolicy + sizeof(VARIABLE_POLICY_ENTRY));
       StateVarName = (CHAR16*)((UINT8*)StateVarPolicy + sizeof(VARIABLE_LOCK_ON_VAR_STATE_POLICY));
       StateVarSize = sizeof(StateVar);
@@ -557,9 +552,8 @@ ValidateSetVariable (
           ReturnStatus = EFI_WRITE_PROTECTED;
           goto Exit;
         }
-      }
       // EFI_NOT_FOUND and EFI_BUFFER_TOO_SMALL indicate that the state doesn't match.
-      else if (Status != EFI_NOT_FOUND && Status != EFI_BUFFER_TOO_SMALL) {
+      } else if (Status != EFI_NOT_FOUND && Status != EFI_BUFFER_TOO_SMALL) {
         // We don't know what happened, but it isn't good.
         ReturnStatus = EFI_ABORTED;
         goto Exit;
