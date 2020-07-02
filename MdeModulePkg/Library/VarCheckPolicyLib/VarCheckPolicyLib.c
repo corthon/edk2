@@ -1,6 +1,6 @@
 /** @file -- VarCheckPolicyLib.c
-This is an instance of a VarCheck lib that leverages the business logic behind
-the VariablePolicy code to make its decisions.
+This is a NULL library instance that leverages the VarCheck interface
+and the business logic behind the VariablePolicy code to make its decisions.
 
 Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent
