@@ -312,6 +312,7 @@ GetBestPolicyMatch (
   UINTN                   Index;
 
   BestResult = NULL;
+  MatchPriority = MATCH_PRIORITY_EXACT;
 
   // Walk all entries in the table, looking for matches.
   CurrentEntry = (VARIABLE_POLICY_ENTRY*)mPolicyTable;
