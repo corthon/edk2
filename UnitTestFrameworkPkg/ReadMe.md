@@ -331,6 +331,17 @@ RUNNING TEST SUITE: Int Safe Conversions Test Suite
 ...
 ```
 
+### XML Reporting Mode
+
+Since these applications are built using the CMocka framework, they can also use the following env variables to output in a structured XML rather than text:
+
+```bash
+CMOCKA_MESSAGE_OUTPUT=xml
+# CMOCKA_XML_FILE=<file path>
+```
+
+This mode is used by the test running plugin to aggregate the results for CI test status reporting in the web view.
+
 ### Important Note
 
 This works on both Windows and Linux, but is currently limited to x64 architectures. Working on getting others, but we also welcome contributions.
