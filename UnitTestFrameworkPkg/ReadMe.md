@@ -239,6 +239,102 @@ the following command will build only the SafeIntLib host-based test from the Md
 stuart_ci_build -c .pytool/CISettings.py TOOL_CHAIN_TAG=VS2017 -p MdePkg -t NOOPT BUILDMODULE=MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLib.inf
 ```
 
+## Running Host-Based Tests
+
+The EDK2 CI infrastructure provides a convenient way to run all host-based tests -- in the the entire tree or just selected packages -- and aggregate all the the reports, including highlighting any failures. This functionality is provided through the Stuart build system (published by EDK2-PyTools) and the `NOOPT` build target.
+
+### Building Locally
+
+First, to make sure you're working with the latest PyTools, run the following command:
+
+```bash
+# Would recommend to run this in a Python venv, but that's out of scope for this doc.
+python -m pip install --upgrade -r ./pip-requirements.txt
+```
+
+After that, the following commands will set up the build and run the host-based tests.
+
+```bash
+# Setup repo for building
+# stuart_setup -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=<GCC5, VS2019, etc.>
+stuart_setup -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=VS2019
+
+# Update all binary dependencies
+# stuart_update -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=<GCC5, VS2019, etc.>
+stuart_update -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=VS2019
+
+# Build and run the tests
+# stuart_ci_build -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=<GCC5, VS2019, etc.> -t NOOPT [-p <Package Name>]
+stuart_ci_build -c ./.pytool/CISettings.py TOOL_CHAIN_TAG=VS2019 -t NOOPT -p MdePkg
+```
+
+### Evaluating the Results
+
+In your immediate output, any build failures will be highlighted. You can see these below as "WARNING" and "ERROR" messages.
+
+```text
+(edk_env) PS C:\_uefi\edk2> stuart_ci_build -c .\.pytool\CISettings.py TOOL_CHAIN_TAG=VS2019 -t NOOPT -p MdePkg
+
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Getting Environment
+SECTION - Loading plugins
+SECTION - Building MdePkg Package
+PROGRESS - --Running MdePkg: Host Unit Test Compiler Plugin NOOPT --
+WARNING - Allowing Override for key TARGET_ARCH
+PROGRESS - Start time: 2020-07-27 17:18:08.521672
+PROGRESS - Setting up the Environment
+PROGRESS - Running Pre Build
+PROGRESS - Running Build NOOPT
+PROGRESS - Running Post Build
+SECTION - Run Host based Unit Tests
+SUBSECTION - Testing for architecture: X64
+WARNING - TestBaseSafeIntLibHost.exe Test Failed
+WARNING -   Test SafeInt8ToUint8 - UT_ASSERT_EQUAL(0x5b:5b, Result:5c)
+c:\_uefi\edk2\MdePkg\Test\UnitTest\Library\BaseSafeIntLib\TestBaseSafeIntLib.c:35: error: Failure!
+ERROR - Plugin Failed: Host-Based Unit Test Runner returned 1
+CRITICAL - Post Build failed
+PROGRESS - End time: 2020-07-27 17:18:19.792313  Total time Elapsed: 0:00:11
+ERROR - --->Test Failed: Host Unit Test Compiler Plugin NOOPT returned 1
+ERROR - Overall Build Status: Error
+PROGRESS - There were 1 failures out of 1 attempts
+SECTION - Summary
+ERROR - Error
+
+(edk_env) PS C:\_uefi\edk2>
+```
+
+If a test fails, you can run it manually to get more details...
+
+```text
+(edk_env) PS C:\_uefi\edk2> .\Build\MdePkg\HostTest\NOOPT_VS2019\X64\TestBaseSafeIntLibHost.exe
+
+Int Safe Lib Unit Test Application v0.1
+---------------------------------------------------------
+------------     RUNNING ALL TEST SUITES   --------------
+---------------------------------------------------------
+---------------------------------------------------------
+RUNNING TEST SUITE: Int Safe Conversions Test Suite
+---------------------------------------------------------
+[==========] Running 71 test(s).
+[ RUN      ] Test SafeInt8ToUint8
+[  ERROR   ] --- UT_ASSERT_EQUAL(0x5b:5b, Result:5c)
+[   LINE   ] --- c:\_uefi\edk2\MdePkg\Test\UnitTest\Library\BaseSafeIntLib\TestBaseSafeIntLib.c:35: error: Failure!
+[  FAILED  ] Test SafeInt8ToUint8
+[ RUN      ] Test SafeInt8ToUint16
+[       OK ] Test SafeInt8ToUint16
+[ RUN      ] Test SafeInt8ToUint32
+[       OK ] Test SafeInt8ToUint32
+[ RUN      ] Test SafeInt8ToUintn
+[       OK ] Test SafeInt8ToUintn
+...
+```
+
+### Important Note
+
+This works on both Windows and Linux, but is currently limited to x64 architectures. Working on getting others, but we also welcome contributions.
+
 ## Known Limitations
 
 ### PEI, DXE, SMM
