@@ -239,7 +239,7 @@ the following command will build only the SafeIntLib host-based test from the Md
 stuart_ci_build -c .pytool/CISettings.py TOOL_CHAIN_TAG=VS2017 -p MdePkg -t NOOPT BUILDMODULE=MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLib.inf
 ```
 
-## Running Host-Based Tests
+## Building and Running Host-Based Tests
 
 The EDK2 CI infrastructure provides a convenient way to run all host-based tests -- in the the entire tree or just selected packages -- and aggregate all the the reports, including highlighting any failures. This functionality is provided through the Stuart build system (published by EDK2-PyTools) and the `NOOPT` build target.
 
@@ -331,13 +331,39 @@ RUNNING TEST SUITE: Int Safe Conversions Test Suite
 ...
 ```
 
+You can also, if you are so inclined, read the output from the exact instance of the test that was run during `stuart_ci_build`. The ouput file can be found on a path that looks like:
+
+`Build/<Package>/HostTest/<Arch>/<TestName>.<TestSuiteName>.<Arch>.result.xml`
+
+A sample of this output looks like:
+
+```xml
+<!--
+  Excerpt taken from:
+  Build\MdePkg\HostTest\NOOPT_VS2019\X64\TestBaseSafeIntLibHost.exe.Int Safe Conversions Test Suite.X64.result.xml
+  -->
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+  <testsuite name="Int Safe Conversions Test Suite" time="0.000" tests="71" failures="1" errors="0" skipped="0" >
+    <testcase name="Test SafeInt8ToUint8" time="0.000" >
+      <failure><![CDATA[UT_ASSERT_EQUAL(0x5c:5c, Result:5b)
+c:\_uefi\mu_ci\mu_basecore\MdePkg\Test\UnitTest\Library\BaseSafeIntLib\TestBaseSafeIntLib.c:35: error: Failure!]]></failure>
+    </testcase>
+    <testcase name="Test SafeInt8ToUint16" time="0.000" >
+    </testcase>
+    <testcase name="Test SafeInt8ToUint32" time="0.000" >
+    </testcase>
+    <testcase name="Test SafeInt8ToUintn" time="0.000" >
+    </testcase>
+```
+
 ### XML Reporting Mode
 
 Since these applications are built using the CMocka framework, they can also use the following env variables to output in a structured XML rather than text:
 
-```bash
+```text
 CMOCKA_MESSAGE_OUTPUT=xml
-# CMOCKA_XML_FILE=<file path>
+CMOCKA_XML_FILE=<absolute or relative path to output file>
 ```
 
 This mode is used by the test running plugin to aggregate the results for CI test status reporting in the web view.
