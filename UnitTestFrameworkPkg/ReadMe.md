@@ -229,6 +229,8 @@ https://api.cmocka.org/
 
 ## Development
 
+### Iterating on a Single Test
+
 When using the EDK2 Pytools for CI testing, the host-based unit tests will be built and run on any build that includes
 the `NOOPT` build target.
 
@@ -239,9 +241,36 @@ the following command will build only the SafeIntLib host-based test from the Md
 stuart_ci_build -c .pytool/CISettings.py TOOL_CHAIN_TAG=VS2017 -p MdePkg -t NOOPT BUILDMODULE=MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLib.inf
 ```
 
+### Hooking BaseLib
+
+Most unit test mocking can be performed by the functions provided in the UnitTestFramework libraries, but since
+BaseLib is consumed by the Framework itself, it requires different techniquest to substitute parts of the
+functionality.
+
+To solve some of this, the UnitTestFramework consumes a special implementation of BaseLib for host-based tests.
+This implementation contains a [hook table](https://github.com/tianocore/edk2/blob/e188ecc8b4aed8fdd26b731d43883861f5e5e7b4/MdePkg/Test/UnitTest/Include/Library/UnitTestHostBaseLib.h#L507)
+that can be used to substitute test functionality for any of the BaseLib functions. By default, this implementation
+will use the underlying BaseLib implementation, so the unit test writer only has to supply minimal code to test a
+particular case.
+
+### Debugging the Framework Itself
+
+While most of the test that are produced by the UnitTestFramework are easy to step through in a debugger, the Framework
+itself consumes code (mostly Cmocka) that sets its own build flags. These flags cause parts of the Framework to not
+export symbols, and as such are harder to debug. We have provided a Stuart parameter to force symbolic debugging to
+be enabled.
+
+You can run a build by adding the `BLD_*_UNIT_TESTING_DEBUG=TRUE` parameter to enable this build option.
+
+```bash
+stuart_ci_build -c .pytool/CISettings.py TOOL_CHAIN_TAG=VS2019 -p MdePkg -t NOOPT BLD_*_UNIT_TESTING_DEBUG=TRUE
+```
+
 ## Building and Running Host-Based Tests
 
-The EDK2 CI infrastructure provides a convenient way to run all host-based tests -- in the the entire tree or just selected packages -- and aggregate all the the reports, including highlighting any failures. This functionality is provided through the Stuart build system (published by EDK2-PyTools) and the `NOOPT` build target.
+The EDK2 CI infrastructure provides a convenient way to run all host-based tests -- in the the entire tree or just
+selected packages -- and aggregate all the the reports, including highlighting any failures. This functionality is
+provided through the Stuart build system (published by EDK2-PyTools) and the `NOOPT` build target.
 
 ### Building Locally
 
@@ -331,7 +360,8 @@ RUNNING TEST SUITE: Int Safe Conversions Test Suite
 ...
 ```
 
-You can also, if you are so inclined, read the output from the exact instance of the test that was run during `stuart_ci_build`. The ouput file can be found on a path that looks like:
+You can also, if you are so inclined, read the output from the exact instance of the test that was run during
+`stuart_ci_build`. The ouput file can be found on a path that looks like:
 
 `Build/<Package>/HostTest/<Arch>/<TestName>.<TestSuiteName>.<Arch>.result.xml`
 
@@ -359,7 +389,8 @@ c:\_uefi\mu_ci\mu_basecore\MdePkg\Test\UnitTest\Library\BaseSafeIntLib\TestBaseS
 
 ### XML Reporting Mode
 
-Since these applications are built using the CMocka framework, they can also use the following env variables to output in a structured XML rather than text:
+Since these applications are built using the CMocka framework, they can also use the following env variables to output
+in a structured XML rather than text:
 
 ```text
 CMOCKA_MESSAGE_OUTPUT=xml
@@ -370,7 +401,8 @@ This mode is used by the test running plugin to aggregate the results for CI tes
 
 ### Important Note
 
-This works on both Windows and Linux, but is currently limited to x64 architectures. Working on getting others, but we also welcome contributions.
+This works on both Windows and Linux, but is currently limited to x64 architectures. Working on getting others, but we
+also welcome contributions.
 
 ## Known Limitations
 
