@@ -12,6 +12,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/DebugLib.h>
 #include <Library/SafeIntLib.h>
 #include <Library/MmServicesTableLib.h>
+#include <Library/SmmMemLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
 
@@ -64,6 +65,7 @@ VarCheckPolicyLibMmiHandler (
   IN OUT UINTN                        *CommBufferSize
   )
 {
+  UINTN                                     InternalCommBufferSize;
   EFI_STATUS                                Status;
   EFI_STATUS                                SubCommandStatus;
   VAR_CHECK_POLICY_COMM_HEADER              *PolicyCommmHeader;
@@ -89,10 +91,17 @@ VarCheckPolicyLibMmiHandler (
     DEBUG(( DEBUG_INFO, "%a - Invalid comm buffer pointers!\n", __FUNCTION__ ));
     return EFI_INVALID_PARAMETER;
   }
+  // Make sure that the buffer does not overlap SMM.
+  // This should be covered by the SmiManage infrastructure, but just to be safe...
+  InternalCommBufferSize = *CommBufferSize;
+  if (!SmmIsBufferOutsideSmmValid(CommBuffer, (UINT64)InternalCommBufferSize)) {
+    DEBUG ((DEBUG_ERROR, "%a - Invalid CommBuffer supplied! 0x%016lX[0x%016lX]\n", __FUNCTION__, CommBuffer, InternalCommBufferSize));
+    return EFI_INVALID_PARAMETER;
+  }
   // If the size does not meet a minimum threshold, we cannot proceed.
   ExpectedSize = sizeof(VAR_CHECK_POLICY_COMM_HEADER);
-  if (*CommBufferSize < ExpectedSize) {
-    DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
+  if (InternalCommBufferSize < ExpectedSize) {
+    DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, InternalCommBufferSize, ExpectedSize ));
     return EFI_INVALID_PARAMETER;
   }
   // Check the revision and the signature of the comm header.
@@ -127,8 +136,8 @@ VarCheckPolicyLibMmiHandler (
       // Make sure that we're dealing with a reasonable size.
       // This add should be safe because these are fixed sizes so far.
       ExpectedSize += sizeof(VAR_CHECK_POLICY_COMM_IS_ENABLED_PARAMS);
-      if (*CommBufferSize < ExpectedSize) {
-        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
+      if (InternalCommBufferSize < ExpectedSize) {
+        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, InternalCommBufferSize, ExpectedSize ));
         PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
         break;
       }
@@ -143,8 +152,8 @@ VarCheckPolicyLibMmiHandler (
       // Make sure that we're dealing with a reasonable size.
       // This add should be safe because these are fixed sizes so far.
       ExpectedSize += sizeof(VARIABLE_POLICY_ENTRY);
-      if (*CommBufferSize < ExpectedSize) {
-        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
+      if (InternalCommBufferSize < ExpectedSize) {
+        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, InternalCommBufferSize, ExpectedSize ));
         PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
         break;
       }
@@ -155,7 +164,7 @@ VarCheckPolicyLibMmiHandler (
       if (PolicyEntry->Version != VARIABLE_POLICY_ENTRY_REVISION ||
           PolicyEntry->Size < sizeof(VARIABLE_POLICY_ENTRY) ||
           EFI_ERROR(SafeUintnAdd(sizeof(VAR_CHECK_POLICY_COMM_HEADER), PolicyEntry->Size, &ExpectedSize)) ||
-          *CommBufferSize < ExpectedSize) {
+          InternalCommBufferSize < ExpectedSize) {
         DEBUG(( DEBUG_INFO, "%a - Bad policy entry contents!\n", __FUNCTION__ ));
         PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
         break;
@@ -168,8 +177,8 @@ VarCheckPolicyLibMmiHandler (
       // Make sure that we're dealing with a reasonable size.
       // This add should be safe because these are fixed sizes so far.
       ExpectedSize += sizeof(VAR_CHECK_POLICY_COMM_DUMP_PARAMS) + VAR_CHECK_POLICY_MM_DUMP_BUFFER_SIZE;
-      if (*CommBufferSize < ExpectedSize) {
-        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, *CommBufferSize, ExpectedSize ));
+      if (InternalCommBufferSize < ExpectedSize) {
+        DEBUG(( DEBUG_INFO, "%a - Bad comm buffer size! %d < %d\n", __FUNCTION__, InternalCommBufferSize, ExpectedSize ));
         PolicyCommmHeader->Result = EFI_INVALID_PARAMETER;
         break;
       }
