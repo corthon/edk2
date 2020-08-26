@@ -21,6 +21,7 @@
 
 [Sources]
   VariablePolicyFuncTestApp.c
+  VariablePolicyTestAuthVar.h
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -30,6 +31,7 @@
 [LibraryClasses]
   UefiApplicationEntryPoint
   BaseLib
+  BaseMemoryLib
   UnitTestLib
   UnitTestBootLib
   PrintLib
@@ -37,6 +39,9 @@
   UefiRuntimeServicesTableLib
   MemoryAllocationLib
   VariablePolicyHelperLib
+
+[Guids]
+  gEfiCertPkcs7Guid
 
 [Protocols]
   gEdkiiVariablePolicyProtocolGuid

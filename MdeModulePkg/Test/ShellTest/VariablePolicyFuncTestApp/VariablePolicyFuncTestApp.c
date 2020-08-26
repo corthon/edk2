@@ -15,7 +15,10 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Protocol/VariablePolicy.h>
 #include <Library/VariablePolicyHelperLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
+
+#include "VariablePolicyTestAuthVar.h"
 
 // TODO: Need to add to the UnitTestFrameworkPkg
 // #include <Library/UnitTestBootLib.h>
@@ -35,6 +38,9 @@ EDKII_VARIABLE_POLICY_PROTOCOL  *mVarPol = NULL;
 EFI_GUID mTestNamespaceGuid1 = { 0x3b389299, 0xabaf, 0x433b, { 0xa4, 0xa9, 0x23, 0xc8, 0x44, 0x02, 0xfc, 0xad } };
 EFI_GUID mTestNamespaceGuid2 = { 0x4c49a3aa, 0xbcb0, 0x544c, { 0xb5, 0xba, 0x34, 0xd9, 0x55, 0x13, 0x0d, 0xbe } };
 EFI_GUID mTestNamespaceGuid3 = { 0x5d5ab4bb, 0xcdc1, 0x655d, { 0xc6, 0xcb, 0x45, 0xea, 0x66, 0x24, 0x1e, 0xcf } };
+
+#define  TEST_AUTH_VAR_NAME     L"DummyAuthVar"
+EFI_GUID mTestAuthNamespaceGuid = { 0xb6c5a2c6, 0x3ece, 0x4b9b, { 0x8c, 0xc8, 0x96, 0xd8, 0xd9, 0xca, 0xd3, 0x4e } };
 
 /**
   Prerequisite for most test cases.
@@ -56,8 +62,41 @@ LocateVarPolicyPreReq (
   }
 
   return UNIT_TEST_PASSED;
-
 } // LocateVarPolicyPreReq
+
+UNIT_TEST_STATUS
+EFIAPI
+VarPolicyEnabledPreReq (
+  IN UNIT_TEST_CONTEXT           Context
+  )
+{
+  EFI_STATUS  Status;
+  BOOLEAN     State;
+
+  UT_ASSERT_EQUAL(LocateVarPolicyPreReq(Context), UNIT_TEST_PASSED);
+  Status = mVarPol->IsVariablePolicyEnabled (&State);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  UT_ASSERT_TRUE(State);
+
+  return UNIT_TEST_PASSED;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+VarPolicyDisabledPreReq (
+  IN UNIT_TEST_CONTEXT           Context
+  )
+{
+  EFI_STATUS  Status;
+  BOOLEAN     State;
+
+  UT_ASSERT_EQUAL(LocateVarPolicyPreReq(Context), UNIT_TEST_PASSED);
+  Status = mVarPol->IsVariablePolicyEnabled (&State);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  UT_ASSERT_FALSE(State);
+
+  return UNIT_TEST_PASSED;
+}
 
 /**
   Getting Started tests.
@@ -90,6 +129,105 @@ CheckVpRevision (
 
   return UNIT_TEST_PASSED;
 } // CheckVpRevision
+
+/**
+  NOTE: Copied from SecureBootConfigImpl.c, then modified.
+
+  Create a time based data payload by concatenating the EFI_VARIABLE_AUTHENTICATION_2
+  descriptor with the input data. NO authentication is required in this function.
+
+  @param[in, out]   DataSize       On input, the size of Data buffer in bytes.
+                                   On output, the size of data returned in Data
+                                   buffer in bytes.
+  @param[in, out]   Data           On input, Pointer to data buffer to be wrapped or
+                                   pointer to NULL to wrap an empty payload.
+                                   On output, Pointer to the new payload date buffer allocated from pool,
+                                   it's caller's responsibility to free the memory when finish using it.
+  @param[in]        Time           [Optional] If provided, will be used as the timestamp for the payload.
+                                   If NULL, a new timestamp will be generated using GetTime().
+
+  @retval EFI_SUCCESS              Create time based payload successfully.
+  @retval EFI_OUT_OF_RESOURCES     There are not enough memory resources to create time based payload.
+  @retval EFI_INVALID_PARAMETER    The parameter is invalid.
+  @retval Others                   Unexpected error happens.
+
+**/
+STATIC
+EFI_STATUS
+CreateEmptyTimeBasedPayload (
+  IN OUT UINTN            *DataSize,
+  IN OUT UINT8            **Data,
+  IN     EFI_TIME         *Time OPTIONAL
+  )
+{
+  UINT8                            *NewData;
+  UINT8                            *Payload;
+  UINTN                            PayloadSize;
+  EFI_VARIABLE_AUTHENTICATION_2    *DescriptorData;
+  UINTN                            DescriptorSize;
+  EFI_TIME                         NewTime;
+
+  if (Data == NULL || DataSize == NULL) {
+    DEBUG((EFI_D_ERROR, "CreateEmptyTimeBasedPayload(), invalid arg\n"));
+    return EFI_INVALID_PARAMETER;
+  }
+
+  //
+  // In Setup mode or Custom mode, the variable does not need to be signed but the
+  // parameters to the SetVariable() call still need to be prepared as authenticated
+  // variable. So we create EFI_VARIABLE_AUTHENTICATED_2 descriptor without certificate
+  // data in it.
+  //
+  Payload     = *Data;
+  PayloadSize = *DataSize;
+
+  DescriptorSize    = OFFSET_OF (EFI_VARIABLE_AUTHENTICATION_2, AuthInfo) + OFFSET_OF (WIN_CERTIFICATE_UEFI_GUID, CertData);
+  NewData = (UINT8*) AllocateZeroPool (DescriptorSize + PayloadSize);
+  if (NewData == NULL) {
+    DEBUG((EFI_D_ERROR, "CreateEmptyTimeBasedPayload() Out of resources.\n"));
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  if ((Payload != NULL) && (PayloadSize != 0)) {
+    CopyMem (NewData + DescriptorSize, Payload, PayloadSize);
+  }
+
+  DescriptorData = (EFI_VARIABLE_AUTHENTICATION_2 *) (NewData);
+
+  //
+  // Use or create the timestamp.
+  //
+  // If Time is NULL, create a new timestamp.
+  if (Time == NULL)
+  {
+    NewTime.Year       = 9999;
+    NewTime.Month      = 12;
+    NewTime.Day        = 31;
+    NewTime.Hour       = 23;
+    NewTime.Minute     = 59;
+    NewTime.Second     = 59;
+    NewTime.Pad1       = 0;
+    NewTime.Nanosecond = 0;
+    NewTime.TimeZone   = 0;
+    NewTime.Daylight   = 0;
+    NewTime.Pad2       = 0;
+    Time = &NewTime;        // Use the new timestamp.
+  }
+  CopyMem (&DescriptorData->TimeStamp, Time, sizeof (EFI_TIME));
+
+  DescriptorData->AuthInfo.Hdr.dwLength         = OFFSET_OF (WIN_CERTIFICATE_UEFI_GUID, CertData);
+  DescriptorData->AuthInfo.Hdr.wRevision        = 0x0200;
+  DescriptorData->AuthInfo.Hdr.wCertificateType = WIN_CERT_TYPE_EFI_GUID;
+  CopyGuid (&DescriptorData->AuthInfo.CertType, &gEfiCertPkcs7Guid);
+
+  if (Payload != NULL) {
+    FreePool(Payload);
+  }
+
+  *DataSize = DescriptorSize + PayloadSize;
+  *Data     = NewData;
+  return EFI_SUCCESS;
+}
 
 /**
   NoLock Policy tests.
@@ -1644,8 +1782,8 @@ LockPolicyEngineTests (
 STATIC
 VOID
 EFIAPI
-SaveContextAndReboot (
-  IN UNIT_TEST_CONTEXT           Context
+SaveStateAndReboot (
+  VOID
   )
 {
   EFI_STATUS Status;
@@ -1679,6 +1817,16 @@ SaveContextAndReboot (
 
   return;
 } // SaveContextAndReboot
+
+STATIC
+VOID
+IgnoreContextAndReboot (
+  IN UNIT_TEST_CONTEXT           Context
+  )
+{
+  // Just a wrapper for prototype reuse.
+  SaveStateAndReboot();
+}
 
 /**
   Disable policy tests.
@@ -1725,6 +1873,104 @@ DisablePolicyEngineTests (
 
   return UNIT_TEST_PASSED;
 } // DisablePolicyEngineTests
+
+//
+// Pre-Disable Setup and Test for Authenticated Variables
+//
+UNIT_TEST_STATUS
+TestAuthVarPart1 (
+  IN UNIT_TEST_CONTEXT           Context
+  )
+{
+  EFI_STATUS    Status;
+  UINT32        Data;
+  UINTN         DataSize;
+  UINT8         *DeleteData;
+
+  // First, we need to create our dummy Authenticated Variable.
+  Status = gRT->SetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            (EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                              EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS),
+                            mTestAuthVarPayloadSize,
+                            &mTestAuthVarPayload[0]);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+
+  // Prove that we created it.
+  DataSize = sizeof(Data);
+  Status = gRT->GetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            NULL,
+                            &DataSize,
+                            &Data);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  UT_ASSERT_EQUAL(Data, 0xDEADBEEF);
+
+  // Prove that we cannot delete it.
+  DeleteData = NULL;
+  DataSize = 0;
+  Status = CreateEmptyTimeBasedPayload(&DataSize, &DeleteData, NULL);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  Status = gRT->SetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            (EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                              EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS),
+                            DataSize,
+                            (VOID*)DeleteData);
+  UT_ASSERT_STATUS_EQUAL(Status, EFI_SECURITY_VIOLATION);
+  FreePool(DeleteData);
+
+  return UNIT_TEST_PASSED;
+}
+
+//
+// Post-Disable Test for Authenticated Variables
+//
+UNIT_TEST_STATUS
+TestAuthVarPart2 (
+  IN UNIT_TEST_CONTEXT           Context
+  )
+{
+  EFI_STATUS    Status;
+  UINT32        Data;
+  UINTN         DataSize;
+  UINT8         *DeleteData;
+
+  // Prove that it exists.
+  DataSize = sizeof(Data);
+  Status = gRT->GetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            NULL,
+                            &DataSize,
+                            &Data);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  UT_ASSERT_EQUAL(Data, 0xDEADBEEF);
+
+  // Prove that we can delete it.
+  DeleteData = NULL;
+  DataSize = 0;
+  Status = CreateEmptyTimeBasedPayload(&DataSize, &DeleteData, NULL);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  Status = gRT->SetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            (EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                              EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS),
+                            DataSize,
+                            (VOID*)DeleteData);
+  UT_ASSERT_NOT_EFI_ERROR(Status);
+  FreePool(DeleteData);
+
+  // Prove that we deleted it.
+  DataSize = sizeof(Data);
+  Status = gRT->GetVariable(TEST_AUTH_VAR_NAME,
+                            &mTestAuthNamespaceGuid,
+                            NULL,
+                            &DataSize,
+                            &Data);
+  UT_ASSERT_STATUS_EQUAL(Status, EFI_NOT_FOUND);
+
+  return UNIT_TEST_PASSED;
+}
 
 /**
   Final Cleanup: delete some variables earlier test cases created.
@@ -1962,7 +2208,9 @@ UefiMain (
   }
   AddTestCase (DisablePolicyTestSuite, "Confirm VP is enabled", "Common.VP.DisablePolicyTests.CheckVpEnabled", CheckVpEnabled, LocateVarPolicyPreReq, NULL, NULL);
   AddTestCase (DisablePolicyTestSuite, "Test LockNow policy for a pre-existing variable", "Common.VP.DisablePolicyTests.TestExistingVarLockNow", TestExistingVarLockNow, LocateVarPolicyPreReq, NULL, NULL);
-  AddTestCase (DisablePolicyTestSuite, "Test disabling policy", "Common.VP.DisablePolicyTests.DisablePolicyEngineTests", DisablePolicyEngineTests, LocateVarPolicyPreReq, FinalCleanup, NULL);
+  AddTestCase (DisablePolicyTestSuite, "Test AuthVar protection while VariablePolicy is enabled", "Common.VP.DisablePolicyTests.TestAuthVar1", TestAuthVarPart1, VarPolicyEnabledPreReq, NULL, NULL);
+  AddTestCase (DisablePolicyTestSuite, "Test disabling policy", "Common.VP.DisablePolicyTests.DisablePolicyEngineTests", DisablePolicyEngineTests, LocateVarPolicyPreReq, NULL, NULL);
+  AddTestCase (DisablePolicyTestSuite, "Test AuthVar protection while VariablePolicy is disabled", "Common.VP.DisablePolicyTests.TestAuthVar2", TestAuthVarPart2, VarPolicyDisabledPreReq, FinalCleanup, NULL);
 
   //
   // Execute the tests.
