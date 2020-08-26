@@ -472,7 +472,7 @@ VariablePolicyHandleFailureToLock (
 
 
 /**
-  ReadyToBoot Callback
+  EndOfDxe Callback
   Lock the VariablePolicy interface if it hasn't already been locked.
 
   @param[in]  Event     Event whose notification function is being invoked
@@ -482,7 +482,7 @@ VariablePolicyHandleFailureToLock (
 STATIC
 VOID
 EFIAPI
-LockPolicyInterfaceAtReadyToBoot (
+LockPolicyInterfaceAtEndOfDxe (
   IN      EFI_EVENT                 Event,
   IN      VOID                      *Context
   )
@@ -542,7 +542,7 @@ VariablePolicySmmDxeMain (
   BOOLEAN                 ProtocolInstalled;
   BOOLEAN                 CallbackRegistered;
   BOOLEAN                 VirtualAddressChangeRegistered;
-  EFI_EVENT               ReadyToBootEvent;
+  EFI_EVENT               EndOfDxeEvent;
   EFI_EVENT               VirtualAddressChangeEvent;
 
   Status = EFI_SUCCESS;
@@ -589,16 +589,16 @@ VariablePolicySmmDxeMain (
   }
 
   //
-  // Register a callback for ReadyToBoot so that the interface is at least locked before
+  // Register a callback for EndOfDxe so that the interface is at least locked before
   // dispatching any bootloaders or UEFI apps.
   Status = gBS->CreateEventEx( EVT_NOTIFY_SIGNAL,
                                TPL_CALLBACK,
-                               LockPolicyInterfaceAtReadyToBoot,
+                               LockPolicyInterfaceAtEndOfDxe,
                                NULL,
-                               &gEfiEventReadyToBootGuid,
-                               &ReadyToBootEvent );
+                               &gEfiEndOfDxeEventGroupGuid,
+                               &EndOfDxeEvent );
   if (EFI_ERROR( Status )) {
-    DEBUG(( DEBUG_ERROR, "%a - Failed to create ReadyToBoot event! %r\n", __FUNCTION__, Status ));
+    DEBUG(( DEBUG_ERROR, "%a - Failed to create EndOfDxe event! %r\n", __FUNCTION__, Status ));
     goto Exit;
   }
   else {
@@ -631,7 +631,7 @@ Exit:
       gBS->UninstallProtocolInterface( &ImageHandle, &gEdkiiVariablePolicyProtocolGuid, &mVariablePolicyProtocol );
     }
     if (CallbackRegistered) {
-      gBS->CloseEvent( ReadyToBootEvent );
+      gBS->CloseEvent( EndOfDxeEvent );
     }
     if (VirtualAddressChangeRegistered) {
       gBS->CloseEvent( VirtualAddressChangeEvent );
