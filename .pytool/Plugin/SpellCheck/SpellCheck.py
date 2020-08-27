@@ -72,6 +72,7 @@ class SpellCheck(ICiBuildPlugin):
 
     def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream=None):
         Errors = []
+        AuditMode = "AuditOnly" in pkgconfig and pkgconfig["AuditOnly"]
 
         abs_pkg_path = Edk2pathObj.GetAbsolutePathOnThisSytemFromEdk2RelativePath(
             packagename)
@@ -180,6 +181,11 @@ class SpellCheck(ICiBuildPlugin):
         # Log all errors tc StdError
         for l in Errors:
             tc.LogStdError(l.strip())
+            notice = "Spelling Error - %s" % l.strip()
+            if AuditMode:
+              logging.info(notice)
+            else:
+              logging.error(notice)
 
         # Helper - Log the syntax needed to add these words to dictionary
         if len(EasyFix) > 0:
@@ -195,7 +201,7 @@ class SpellCheck(ICiBuildPlugin):
         # add result to test case
         overall_status = len(Errors)
         if overall_status != 0:
-            if "AuditOnly" in pkgconfig and pkgconfig["AuditOnly"]:
+            if AuditMode:
                 # set as skipped if AuditOnly
                 tc.SetSkipped()
                 return -1
@@ -209,7 +215,7 @@ class SpellCheck(ICiBuildPlugin):
     def _check_spelling(self, abs_file_to_check: str, abs_config_file_to_use: str) -> []:
         output = StringIO()
         ret = RunCmd(
-            "cspell", f"--config {abs_config_file_to_use} {abs_file_to_check}", outstream=output)
+            "cspell", f"--config {abs_config_file_to_use} {abs_file_to_check}", outstream=output, logging_level=logging.DEBUG)
         if ret == 0:
             return []
         else:
