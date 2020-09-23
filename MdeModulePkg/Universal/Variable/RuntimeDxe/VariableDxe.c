@@ -298,6 +298,8 @@ OnReadyToBoot (
   VOID                                    *Context
   )
 {
+  EFI_STATUS        Status;
+
   if (!mEndOfDxe) {
     MorLockInitAtEndOfDxe ();
     //
@@ -319,7 +321,8 @@ OnReadyToBoot (
     }
   }
 
-  ASSERT_EFI_ERROR (LockVariablePolicy ());
+  Status = LockVariablePolicy ();
+  ASSERT_EFI_ERROR (Status);
 
   gBS->CloseEvent (Event);
 }
