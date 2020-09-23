@@ -1928,6 +1928,12 @@ VerifyTimeBasedPayload (
   PayloadPtr = SigData + SigDataSize;
   PayloadSize = DataSize - OFFSET_OF_AUTHINFO2_CERT_DATA - (UINTN) SigDataSize;
 
+  // If the VariablePolicy engine is disabled, allow deletion of any authenticated variables.
+  if (PayloadSize == 0 && (Attributes & EFI_VARIABLE_APPEND_WRITE) == 0 && !IsVariablePolicyEnabled()) {
+    VerifyStatus = TRUE;
+    goto Exit;
+  }
+
   //
   // Construct a serialization buffer of the values of the VariableName, VendorGuid and Attributes
   // parameters of the SetVariable() call and the TimeStamp component of the
@@ -1967,12 +1973,6 @@ VerifyTimeBasedPayload (
   Buffer += Length;
 
   CopyMem (Buffer, PayloadPtr, PayloadSize);
-
-  // If the VariablePolicy engine is disabled, allow deletion of any authenticated variables.
-  if (PayloadSize == 0 && (Attributes & EFI_VARIABLE_APPEND_WRITE) == 0 && !IsVariablePolicyEnabled()) {
-    VerifyStatus = TRUE;
-    goto Exit;
-  }
 
   if (AuthVarType == AuthVarTypePk) {
     //
@@ -2187,8 +2187,12 @@ VerifyTimeBasedPayload (
 Exit:
 
   if (AuthVarType == AuthVarTypePk || AuthVarType == AuthVarTypePriv) {
-    Pkcs7FreeSigners (TopLevelCert);
-    Pkcs7FreeSigners (SignerCerts);
+    if (TopLevelCert != NULL) {
+        Pkcs7FreeSigners (TopLevelCert);
+    }
+    if (SignerCerts != NULL) {
+        Pkcs7FreeSigners (SignerCerts);
+    }
   }
 
   if (!VerifyStatus) {
