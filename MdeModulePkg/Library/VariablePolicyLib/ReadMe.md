@@ -6,6 +6,19 @@ copyright:  Copyright (c) Microsoft Corporation.
 
 # UEFI Variable Policy
 
+## TODO
+
+1) Once the variable policy engine has been disabled, the expectation for subsequent SetVariable() operations is to continue to conform to UEFI spec variable requirements:
+- EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS attributed variable operations must prepend the EFI_VARIABLE_AUTHENTICATION_2 descriptor
+- EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS attributed variable operations must prepend the EFI_VARIABLE_AUTHENTICATION_3 descriptor
+- and so on
+
+2) Once the variable policy engine has been disabled, the firmware handling of EFI_VARIABLE_AUTHENTICATION_2 descriptor is modified as follows:
+- Timestamp value may be older than the current timestamp value associated with a previously existing variable
+- Signature verification of CertData is omitted
+- Verification that the signer’s certificate chains to the information previously associated with an existing variable is also omitted
+- The Timestamp and signer’s certificate data associated with the variable is updated corresponding to the new EFI_VARAIBLE_AUTHENTICATION_2 descriptor
+
 ## Summary
 
 UEFI Variable Policy spec aims to describe the DXE protocol interface
