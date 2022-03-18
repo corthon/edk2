@@ -46,6 +46,33 @@
       gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable|TRUE
   }
 
+  MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/VariableRuntimeDxeUnitTest.inf {
+    <LibraryClasses>
+      UefiLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/MockUefiLib/MockUefiLib.inf
+      VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf
+      VariablePolicyHelperLib|MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf
+      TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
+      AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
+      DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+      BaseCryptLib|CryptoPkg/Library/BaseCryptLib/UnitTestHostBaseCryptLib.inf
+      OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
+      RngLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/RngLibHostTestLfsr/RngLibHostTestLfsr.inf
+      PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf   # TODO: Mock
+      UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
+      DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
+      UefiRuntimeServicesTableLib|MdeModulePkg/Library/DxeResetSystemLib/UnitTest/MockUefiRuntimeServicesTableLib.inf
+      UefiBootServicesTableLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/MockUefiBootServicesTableLib/MockUefiBootServicesTableLib.inf
+      SynchronizationLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/SynchronizationLibHostUnitTest/SynchronizationLibHostUnitTest.inf
+
+      VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
+      NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
+      NULL|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/VarCheckPolicyLib/VarCheckPolicyLibVariableDxe.inf
+
+    <PcdsFixedAtBuild>
+      gEfiMdeModulePkgTokenSpaceGuid.PcdAllowVariablePolicyEnforcementDisable|TRUE
+      gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
+  }
+
   MdeModulePkg/Library/UefiSortLib/UnitTest/UefiSortLibUnitTest.inf {
     <LibraryClasses>
       UefiSortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
