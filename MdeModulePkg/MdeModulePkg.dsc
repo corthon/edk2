@@ -513,5 +513,8 @@
 [Components.X64]
   MdeModulePkg/Universal/CapsulePei/CapsuleX64.inf
 
+[Components]
+  MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/VarCheckPolicyLib/VarCheckPolicyLibVariableDxe.inf
+
 [BuildOptions]
 
