@@ -37,6 +37,8 @@
   ../VariableNonVolatile.h
   ../VariableParsing.c
   ../VariableParsing.h
+  ../VariableRuntimeCache.c
+  ../VariableRuntimeCache.h
 
 
 [Packages]
@@ -62,6 +64,10 @@
   VarCheckLib
   VariablePolicyLib
   VariablePolicyHelperLib
+
+
+[Protocols]
+  gEdkiiVariablePolicyProtocolGuid              ## CONSUMES
 
 
 [Guids]

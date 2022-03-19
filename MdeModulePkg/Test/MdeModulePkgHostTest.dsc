@@ -56,7 +56,7 @@
       UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
       DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
       UefiRuntimeServicesTableLib|MdeModulePkg/Library/DxeResetSystemLib/UnitTest/MockUefiRuntimeServicesTableLib.inf
-      SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
+      SynchronizationLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/SynchronizationLibHostUnitTest/SynchronizationLibHostUnitTest.inf
 
       VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
       NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf

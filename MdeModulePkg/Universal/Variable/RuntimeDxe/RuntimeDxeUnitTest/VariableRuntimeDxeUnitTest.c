@@ -19,6 +19,33 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 BOOLEAN   mTestAtRuntime = FALSE;
 
+///
+/// Mock version of the UEFI Runtime Services Table
+///
+EFI_RUNTIME_SERVICES  MockRuntime = {
+  {
+    EFI_RUNTIME_SERVICES_SIGNATURE,     // Signature
+    EFI_RUNTIME_SERVICES_REVISION,      // Revision
+    sizeof (EFI_RUNTIME_SERVICES),      // HeaderSize
+    0,                                  // CRC32
+    0                                   // Reserved
+  },
+  NULL,               // GetTime
+  NULL,               // SetTime
+  NULL,               // GetWakeupTime
+  NULL,               // SetWakeupTime
+  NULL,               // SetVirtualAddressMap
+  NULL,               // ConvertPointer
+  NULL,               // GetVariable
+  NULL,               // GetNextVariableName
+  NULL,               // SetVariable
+  NULL,               // GetNextHighMonotonicCount
+  NULL,               // ResetSystem
+  NULL,               // UpdateCapsule
+  NULL,               // QueryCapsuleCapabilities
+  NULL                // QueryVariableInfo
+};
+
 /**
   Return TRUE if ExitBootServices () has been called.
 
