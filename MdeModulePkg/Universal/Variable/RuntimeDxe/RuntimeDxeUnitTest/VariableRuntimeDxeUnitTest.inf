@@ -130,3 +130,9 @@
 [FeaturePcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableCollectStatistics  ## CONSUMES # statistic the information of variable.
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLangDeprecate ## CONSUMES # Auto update PlatformLang/Lang
+
+
+
+[BuildOptions]
+  GCC:NOOPT_*_*_CC_FLAGS = -include Uefi.h
+  MSFT:NOOPT_*_*_CC_FLAGS = /FIUefi.h
