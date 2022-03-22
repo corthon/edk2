@@ -24,6 +24,7 @@
 [Sources]
   # Test Driver
   VariableRuntimeDxeUnitTest.c
+  MockHob.c
   # Files Under Test
   ../Measurement.c
   ../PrivilegePolymorphic.h
@@ -58,7 +59,6 @@
   UefiRuntimeLib
   DxeServicesTableLib
   PcdLib
-  HobLib
   TpmMeasurementLib
   AuthVariableLib
   VarCheckLib

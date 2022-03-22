@@ -47,7 +47,6 @@
       UefiLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/MockUefiLib/MockUefiLib.inf
       VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf
       VariablePolicyHelperLib|MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf
-      HobLib|MdeModulePkg/Library/BaseHobLibNull/BaseHobLibNull.inf
       TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
       AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
       DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf

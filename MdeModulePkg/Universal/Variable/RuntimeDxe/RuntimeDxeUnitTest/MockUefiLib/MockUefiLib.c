@@ -237,8 +237,13 @@ EfiInitializeLock (
   IN EFI_TPL       Priority
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (Lock != NULL);
+  ASSERT (Priority <= TPL_HIGH_LEVEL);
+
+  Lock->Tpl      = Priority;
+  Lock->OwnerTpl = TPL_APPLICATION;
+  Lock->Lock     = EfiLockReleased;
+  return Lock;
 }
 
 /**
