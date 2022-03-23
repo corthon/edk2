@@ -1,4 +1,4 @@
-/** @file -- VariableRuntimeDxeUnitTest.c
+/** @file
 Host-based unit test for the VariableRuntimeDxe driver. Will
 use mocks for all external interfaces.
 
@@ -11,6 +11,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/UnitTestLib.h>
 #include <Library/DebugLib.h>
 
+#include "VariableRuntimeDxeUnitTest.h"
 #include "Variable.h"
 
 #define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"

@@ -22,9 +22,12 @@
 
 
 [Sources]
-  # Test Driver
-  VariableRuntimeDxeUnitTest.c
+  # Test Harness
   MockHob.c
+  TestData.c
+  VariableRuntimeDxeUnitTest.c
+  VariableRuntimeDxeUnitTest.h
+
   # Files Under Test
   ../Measurement.c
   ../PrivilegePolymorphic.h
