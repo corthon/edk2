@@ -25,6 +25,7 @@
   # Test Harness
   MockHob.c
   TestData.c
+  UnitTestAssertCleanup.h
   VariableRuntimeDxeUnitTest.c
   VariableRuntimeDxeUnitTest.h
   VariableTestDataHelpers.c

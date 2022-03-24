@@ -11,6 +11,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/UnitTestLib.h>
 #include <Library/DebugLib.h>
 
+#include "UnitTestAssertCleanup.h"
+
 #include "Variable.h"
 
 #define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"
@@ -206,14 +208,23 @@ DummyTest (
   IN UNIT_TEST_CONTEXT           Context
   )
 {
+  UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
   T_VAR     *VarA, *VarB;
 
   VarA = LoadTestVariable("TestVarA");
-  UT_ASSERT_NOT_NULL(VarA);
+  UT_CLEANUP_ASSERT_NOT_NULL(VarA);
   VarB = LoadTestVariable("TestVarB");
-  UT_ASSERT_NOT_NULL(VarB);
+  UT_CLEANUP_ASSERT_NOT_NULL(VarB);
 
-  return UNIT_TEST_PASSED;
+Cleanup:
+  if (VarA != NULL) {
+    FreeTestVariable(VarA);
+  }
+  if (VarB != NULL) {
+    FreeTestVariable(VarB);
+  }
+
+  return TestResult;
 }
 
 /**
