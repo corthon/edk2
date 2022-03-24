@@ -27,6 +27,7 @@
   TestData.c
   VariableRuntimeDxeUnitTest.c
   VariableRuntimeDxeUnitTest.h
+  VariableTestDataHelpers.c
 
   # Files Under Test
   ../Measurement.c

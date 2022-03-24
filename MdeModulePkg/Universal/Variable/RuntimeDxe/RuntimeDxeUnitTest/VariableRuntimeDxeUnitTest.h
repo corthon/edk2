@@ -10,6 +10,12 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #ifndef _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
 #define _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
 
+#include <Uefi.h>
+#include <Uefi/UefiMultiPhase.h>
+#include <Guid/VariableFormat.h>
+#include <Guid/GlobalVariable.h>
+
+
 #define VAR_TYPE_STANDARD       0x00
 #define VAR_TYPE_TIME_AUTH      0x01
 
@@ -32,5 +38,30 @@ typedef struct _TEST_VARIABLE_AUTH {
     CHAR8                   *SigData;
     UINT32                  SigDataEnc;
 } TEST_VARIABLE_AUTH;
+
+typedef struct _TEST_VARIABLE_MODEL {
+    CHAR8       *TestName;
+    CHAR16      *Name;
+    EFI_GUID    VendorGuid;
+    UINT8       *Data;          // ALLOCATED
+    UINT32      DataSize;
+    UINT8       *SigData;       // ALLOCATED, OPTIONAL
+    UINT32      SigDataSize;    // OPTIONAL
+    EFI_TIME    Timestamp;      // OPTIONAL
+    UINT32      Attributes;
+    UINT32      VarType;
+    UINT32      DataEnc;
+} TEST_VARIABLE_MODEL;
+#define     T_VAR       TEST_VARIABLE_MODEL
+
+TEST_VARIABLE_MODEL*
+LoadTestVariable (
+    IN CONST    CHAR8      *TestName
+    );
+
+VOID
+FreeTestVariable (
+    IN OUT      TEST_VARIABLE_MODEL     *VarModel
+    );
 
 #endif // _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_

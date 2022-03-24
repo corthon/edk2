@@ -7,11 +7,10 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
 
-#include <Uefi.h>
+#include "VariableRuntimeDxeUnitTest.h"
 #include <Library/UnitTestLib.h>
 #include <Library/DebugLib.h>
 
-#include "VariableRuntimeDxeUnitTest.h"
 #include "Variable.h"
 
 #define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"
@@ -207,6 +206,13 @@ DummyTest (
   IN UNIT_TEST_CONTEXT           Context
   )
 {
+  T_VAR     *VarA, *VarB;
+
+  VarA = LoadTestVariable("TestVarA");
+  UT_ASSERT_NOT_NULL(VarA);
+  VarB = LoadTestVariable("TestVarB");
+  UT_ASSERT_NOT_NULL(VarB);
+
   return UNIT_TEST_PASSED;
 }
 
