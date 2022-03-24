@@ -10,6 +10,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
+#include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
 
 
@@ -19,14 +20,19 @@ extern UINT32                  mGlobalTestVarDbCount;
 STATIC
 UINT8*
 DecodeBase64String (
-    IN CONST  CHAR8     *Data
+    IN CONST  CHAR8     *Data,
+    OUT       UINT32    *OutputSize
     )
 {
     UINTN   SourceSize, DestSize;
     UINT8   *Result;
 
+    ASSERT(Data != NULL);
+    ASSERT(OutputSize != NULL);
+
     SourceSize = AsciiStrLen(Data);
     DestSize = 0;
+    Result = NULL;
 
     if (EFI_ERROR(Base64Decode(Data, SourceSize, NULL, &DestSize))) {
         return NULL;
@@ -37,6 +43,8 @@ DecodeBase64String (
     if (Result != NULL && EFI_ERROR(Base64Decode(Data, SourceSize, Result, &DestSize))) {
         FreePool(Result);
         Result = NULL;
+    } else {
+        *OutputSize = (UINT32)DestSize;
     }
 
     return Result;
@@ -45,31 +53,63 @@ DecodeBase64String (
 STATIC
 UINT8*
 DecodeHexString (
-    IN CONST  CHAR8     *Data
+    IN CONST  CHAR8     *Data,
+    OUT       UINT32    *OutputSize
     )
 {
-    return NULL;
+    UINTN   SourceSize, DestSize;
+    UINT8   *Result;
+
+    ASSERT(Data != NULL);
+    ASSERT(OutputSize != NULL);
+
+    SourceSize = AsciiStrLen(Data);
+    DestSize = 0;
+    Result = NULL;
+
+    ASSERT((SourceSize & 0x1) == 0);
+    DestSize = SourceSize >> 1;
+    Result = AllocatePool(DestSize);
+
+    if (Result != NULL && EFI_ERROR(AsciiStrHexToBytes(Data, SourceSize, Result, DestSize))) { 
+        FreePool(Result);
+        Result = NULL;
+    } else {
+        *OutputSize = (UINT32)DestSize;
+    }
+
+    return Result;
 }
 
 STATIC
 UINT8*
 DecodeDataString (
-    IN        UINT32    Type,
-    IN CONST  CHAR8     *Data
+    IN        UINT32    Encoding,
+    IN CONST  CHAR8     *Data,
+    OUT       UINT32    *OutputSize
     )
 {
     UINT8       *Result;
 
-    switch (Type) {
+    switch (Encoding) {
         case DATA_ENC_BASE64:
-            Result = DecodeBase64String(Data);
+            Result = DecodeBase64String(Data, OutputSize);
             break;
         default:
-            Result = DecodeHexString(Data);
+            Result = DecodeHexString(Data, OutputSize);
             break;
     }
 
     return Result;
+}
+
+STATIC
+BOOLEAN
+ShouldHaveSigData (
+    TEST_VARIABLE_MODEL     *Model
+    )
+{
+    return (Model->VarType == VAR_TYPE_TIME_AUTH);
 }
 
 TEST_VARIABLE_MODEL*
@@ -102,14 +142,24 @@ LoadTestVariable (
         if (NewModel == NULL) {
             return NULL;
         }
-    }
 
-    if (NewModel == NULL) {
-        if (Data != NULL) {
-            FreePool(Data);
+        CopyMem(NewModel, FoundVariable, OFFSET_OF(TEST_VARIABLE_HEADER, Data));
+        NewModel->Data = DecodeDataString(FoundVariable->DataEnc,
+                                          FoundVariable->Data,
+                                          &NewModel->DataSize);
+
+        if (FoundVariable->VarType == VAR_TYPE_TIME_AUTH) {
+            FoundAuthVariable = (TEST_VARIABLE_AUTH*)FoundVariable;
+            CopyMem(&NewModel->Timestamp, &FoundAuthVariable->Timestamp, sizeof(EFI_TIME));
+            NewModel->SigData = DecodeDataString(FoundAuthVariable->SigDataEnc,
+                                                 FoundAuthVariable->SigData,
+                                                 &NewModel->SigDataSize);
         }
-        if (SigData != NULL) {
-            FreePool(SigData);
+
+        if (NewModel->Data == NULL ||
+                (ShouldHaveSigData(NewModel) && NewModel->SigData == NULL)) {
+            FreeTestVariable(NewModel);
+            NewModel = NULL;
         }
     }
 

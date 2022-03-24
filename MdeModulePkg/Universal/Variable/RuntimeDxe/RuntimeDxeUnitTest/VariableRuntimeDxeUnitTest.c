@@ -13,7 +13,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include "UnitTestAssertCleanup.h"
 
-#include "Variable.h"
+#include "../Variable.h"
 
 #define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"
 #define UNIT_TEST_VERSION     "1.0"
@@ -209,19 +209,38 @@ DummyTest (
   )
 {
   UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
-  T_VAR     *VarA, *VarB;
+  T_VAR     *VarA;
+  UINTN     DataSize;
+  UINT8     Data[10];
+  UINT32    Attributes;
 
   VarA = LoadTestVariable("TestVarA");
   UT_CLEANUP_ASSERT_NOT_NULL(VarA);
-  VarB = LoadTestVariable("TestVarB");
-  UT_CLEANUP_ASSERT_NOT_NULL(VarB);
+
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR(VariableServiceSetVariable(
+    VarA->Name,
+    &VarA->VendorGuid,
+    VarA->Attributes,
+    VarA->DataSize,
+    VarA->Data
+  ));
+
+  DataSize = sizeof(Data);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR(VariableServiceGetVariable(
+    VarA->Name,
+    &VarA->VendorGuid,
+    &Attributes,
+    &DataSize,
+    (VOID*)Data
+  ));
+
+  UT_CLEANUP_ASSERT_EQUAL(VarA->Attributes, Attributes);
+  UT_CLEANUP_ASSERT_EQUAL(VarA->DataSize, DataSize);
+  UT_CLEANUP_ASSERT_MEM_EQUAL(VarA->Data, Data, VarA->DataSize);
 
 Cleanup:
   if (VarA != NULL) {
     FreeTestVariable(VarA);
-  }
-  if (VarB != NULL) {
-    FreeTestVariable(VarB);
   }
 
   return TestResult;
