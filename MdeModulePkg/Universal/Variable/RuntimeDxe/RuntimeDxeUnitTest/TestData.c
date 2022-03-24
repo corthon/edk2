@@ -14,9 +14,9 @@ TEST_VARIABLE_HEADER        TestVarA = {
     "TestVarA",
     L"TestVarA",
     TEST_GUID_1,
-    "DEADBEEF",
     VARIABLE_ATTRIBUTE_NV_BS_RT,
     VAR_TYPE_STANDARD,
+    "DEADBEEF",
     DATA_ENC_HEX
 };
 
@@ -24,9 +24,9 @@ TEST_VARIABLE_HEADER        TestVarB = {
     "TestVarB",
     L"TestVarB",
     TEST_GUID_1,
-    "FEEDF00D",
     VARIABLE_ATTRIBUTE_NV_BS,
     VAR_TYPE_STANDARD,
+    "FEEDF00D",
     DATA_ENC_HEX
 };
 

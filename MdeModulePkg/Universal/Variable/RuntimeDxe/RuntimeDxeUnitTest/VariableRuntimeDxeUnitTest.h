@@ -26,9 +26,9 @@ typedef struct _TEST_VARIABLE_HEADER {
     CHAR8       *TestName;
     CHAR16      *Name;
     EFI_GUID    VendorGuid;
-    CHAR8       *Data;
     UINT32      Attributes;
     UINT32      VarType;
+    CHAR8       *Data;
     UINT32      DataEnc;
 } TEST_VARIABLE_HEADER;
 
@@ -43,14 +43,13 @@ typedef struct _TEST_VARIABLE_MODEL {
     CHAR8       *TestName;
     CHAR16      *Name;
     EFI_GUID    VendorGuid;
+    UINT32      Attributes;
+    UINT32      VarType;
     UINT8       *Data;          // ALLOCATED
     UINT32      DataSize;
     UINT8       *SigData;       // ALLOCATED, OPTIONAL
     UINT32      SigDataSize;    // OPTIONAL
     EFI_TIME    Timestamp;      // OPTIONAL
-    UINT32      Attributes;
-    UINT32      VarType;
-    UINT32      DataEnc;
 } TEST_VARIABLE_MODEL;
 #define     T_VAR       TEST_VARIABLE_MODEL
 
