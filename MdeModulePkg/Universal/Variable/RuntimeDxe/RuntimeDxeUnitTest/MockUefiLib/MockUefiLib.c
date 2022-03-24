@@ -265,8 +265,10 @@ EfiAcquireLock (
   IN EFI_LOCK  *Lock
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (Lock != NULL);
+  ASSERT (Lock->Lock == EfiLockReleased);
+
+  Lock->Lock     = EfiLockAcquired;
 }
 
 /**
@@ -314,8 +316,10 @@ EfiReleaseLock (
   IN EFI_LOCK  *Lock
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (Lock != NULL);
+  ASSERT (Lock->Lock == EfiLockAcquired);
+
+  Lock->Lock = EfiLockReleased;
 }
 
 /**
