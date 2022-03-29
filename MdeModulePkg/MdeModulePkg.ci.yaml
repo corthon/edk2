@@ -9,7 +9,10 @@
 {
     ## options defined .pytool/Plugin/LicenseCheck
     "LicenseCheck": {
-        "IgnoreFiles": []
+        "IgnoreFiles": [
+            "Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/BlackBoxTest",
+            "Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/SctInclude",
+        ]
     },
     "EccCheck": {
         ## Exception sample looks like below:
