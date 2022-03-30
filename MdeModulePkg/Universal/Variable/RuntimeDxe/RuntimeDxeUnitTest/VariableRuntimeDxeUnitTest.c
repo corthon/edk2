@@ -348,12 +348,13 @@ GetVariableConfTestWrapper (
 
   Result = UNIT_TEST_PASSED;
 
-  InitSctPrivateData( &Result, &TestData );
+  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
   GetVariableConfTest (NULL,
                        (VOID*)gRT,
                        EFI_TEST_LEVEL_DEFAULT,
                        (EFI_HANDLE)&TestData);
 
+  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
   return Result;
 }
 
@@ -366,12 +367,15 @@ GetNextVariableNameConfTestWrapper (
   UNIT_TEST_STATUS              Result;
   SCT_HOST_TEST_PRIVATE_DATA    TestData;
 
+  Result = UNIT_TEST_PASSED;
+
   UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
   GetNextVariableNameConfTest (NULL,
                               (VOID*)gRT,
                               EFI_TEST_LEVEL_DEFAULT,
                               (EFI_HANDLE)&TestData);
 
+  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
   return Result;
 }
 
@@ -384,12 +388,15 @@ SetVariableConfTestWrapper (
   UNIT_TEST_STATUS              Result;
   SCT_HOST_TEST_PRIVATE_DATA    TestData;
 
-  InitSctPrivateData( &Result, &TestData );
+  Result = UNIT_TEST_PASSED;
+
+  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
   SetVariableConfTest (NULL,
                        (VOID*)gRT,
                        EFI_TEST_LEVEL_DEFAULT,
                        (EFI_HANDLE)&TestData);
 
+  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
   return Result;
 }
 

@@ -179,7 +179,7 @@ Returns:
   switch (Type) {
   case EFI_TEST_ASSERTION_PASSED:
     StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"PASS");
-    LogLevel = UNIT_TEST_LOG_LEVEL_INFO;
+    LogLevel = UNIT_TEST_LOG_LEVEL_VERBOSE;
     break;
   case EFI_TEST_ASSERTION_WARNING:
     StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"WARNING");
@@ -253,7 +253,7 @@ Returns:
     if ( AsciiStrnLenS (AsciiBuffer, EFI_MAX_PRINT_BUFFER) + 3 < EFI_MAX_PRINT_BUFFER ) {
       AsciiStrCatS (AsciiBuffer, EFI_MAX_PRINT_BUFFER, "\r\n");
     }
-    UnitTestLog(UNIT_TEST_LOG_LEVEL_INFO, AsciiBuffer);
+    UnitTestLog(UNIT_TEST_LOG_LEVEL_VERBOSE, AsciiBuffer);
   }
 
   return Status;
