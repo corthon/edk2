@@ -337,68 +337,31 @@ Cleanup:
   return TestResult;
 }
 
-UNIT_TEST_STATUS
-EFIAPI
-GetVariableConfTestWrapper (
-  IN UNIT_TEST_CONTEXT      Context
-  )
-{
-  UNIT_TEST_STATUS              Result;
-  SCT_HOST_TEST_PRIVATE_DATA    TestData;
+# define SCT_TEST_WRAPPER_FUNCTION(TestName)    \
+  UNIT_TEST_STATUS                              \
+  EFIAPI                                        \
+  TestName##Wrapper (                           \
+    IN UNIT_TEST_CONTEXT      Context           \
+    )                                           \
+  {                                             \
+    UNIT_TEST_STATUS              Result;       \
+    SCT_HOST_TEST_PRIVATE_DATA    TestData;     \
+                                                \
+    Result = UNIT_TEST_PASSED;                  \
+                                                \
+    UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );  \
+    TestName (NULL,                             \
+              (VOID*)gRT,                       \
+              EFI_TEST_LEVEL_DEFAULT,           \
+              (EFI_HANDLE)&TestData);           \
+                                                \
+    UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);  \
+    return Result;                              \
+  }
 
-  Result = UNIT_TEST_PASSED;
-
-  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
-  GetVariableConfTest (NULL,
-                       (VOID*)gRT,
-                       EFI_TEST_LEVEL_DEFAULT,
-                       (EFI_HANDLE)&TestData);
-
-  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
-  return Result;
-}
-
-UNIT_TEST_STATUS
-EFIAPI
-GetNextVariableNameConfTestWrapper (
-  IN UNIT_TEST_CONTEXT      Context
-  )
-{
-  UNIT_TEST_STATUS              Result;
-  SCT_HOST_TEST_PRIVATE_DATA    TestData;
-
-  Result = UNIT_TEST_PASSED;
-
-  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
-  GetNextVariableNameConfTest (NULL,
-                              (VOID*)gRT,
-                              EFI_TEST_LEVEL_DEFAULT,
-                              (EFI_HANDLE)&TestData);
-
-  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
-  return Result;
-}
-
-UNIT_TEST_STATUS
-EFIAPI
-SetVariableConfTestWrapper (
-  IN UNIT_TEST_CONTEXT      Context
-  )
-{
-  UNIT_TEST_STATUS              Result;
-  SCT_HOST_TEST_PRIVATE_DATA    TestData;
-
-  Result = UNIT_TEST_PASSED;
-
-  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
-  SetVariableConfTest (NULL,
-                       (VOID*)gRT,
-                       EFI_TEST_LEVEL_DEFAULT,
-                       (EFI_HANDLE)&TestData);
-
-  UT_ASSERT_EQUAL(Result, UNIT_TEST_PASSED);
-  return Result;
-}
+SCT_TEST_WRAPPER_FUNCTION(GetVariableConfTest)
+SCT_TEST_WRAPPER_FUNCTION(GetNextVariableNameConfTest)
+SCT_TEST_WRAPPER_FUNCTION(SetVariableConfTest)
 
 
 /**
