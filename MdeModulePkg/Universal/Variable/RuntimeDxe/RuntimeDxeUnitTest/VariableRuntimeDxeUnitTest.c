@@ -10,10 +10,12 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "VariableRuntimeDxeUnitTest.h"
 #include <Library/UnitTestLib.h>
 #include <Library/DebugLib.h>
+#include <Library/UefiRuntimeServicesTableLib.h>
 
 #include "UnitTestAssertCleanup.h"
 
 #include "../Variable.h"
+#include "BlackBoxTest/VariableServicesBBTestMain.h"
 
 #define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"
 #define UNIT_TEST_VERSION     "1.0"
@@ -246,6 +248,37 @@ Cleanup:
   return TestResult;
 }
 
+UNIT_TEST_STATUS
+EFIAPI
+GetVariableConfTestWrapper (
+  IN UNIT_TEST_CONTEXT      Context
+  )
+{
+  ASSERT (FALSE);
+  return UNIT_TEST_ERROR_TEST_FAILED;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+GetNextVariableNameConfTestWrapper (
+  IN UNIT_TEST_CONTEXT      Context
+  )
+{
+  ASSERT (FALSE);
+  return UNIT_TEST_ERROR_TEST_FAILED;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+SetVariableConfTestWrapper (
+  IN UNIT_TEST_CONTEXT      Context
+  )
+{
+  ASSERT (FALSE);
+  return UNIT_TEST_ERROR_TEST_FAILED;
+}
+
+
 /**
   Main fuction sets up the unit test environment
 **/
@@ -258,6 +291,7 @@ UefiTestMain (
   EFI_STATUS                  Status;
   UNIT_TEST_FRAMEWORK_HANDLE  Framework;
   UNIT_TEST_SUITE_HANDLE      GenericTests;
+  UNIT_TEST_SUITE_HANDLE      SctConformanceTests;
 
   Framework = NULL;
 
@@ -283,11 +317,28 @@ UefiTestMain (
   }
   AddTestCase (GenericTests, "Dummy Test", "Dummy", DummyTest, NULL, NULL, NULL);
 
+  //
+  // Populate the SCT Conformance TDS 3.1-3.3 Unit Test Suite.
+  //
+  Status = CreateUnitTestSuite (&SctConformanceTests, Framework, "SCT Conformance Tests", "SctConformance", NULL, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctConformanceTests\n"));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+  AddTestCase (SctConformanceTests, "GetVariableConf Test", "GetVariableConf", GetVariableConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctConformanceTests, "GetNextVariableNameConf Test", "GetNextVariableNameConf", GetNextVariableNameConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctConformanceTests, "SetVariableConf Test", "SetVariableConf", SetVariableConfTestWrapper, NULL, NULL, NULL);
+
 
   // NOTE: This initialization should be performed per-suite, probably.
   //       But to do that optimally, I think we'd need to be able to deinit. Dunno.
   //       We'll play around with it.
   ASSERT_EFI_ERROR (VariableCommonInitialize());
+  gRT->GetVariable         = VariableServiceGetVariable;
+  gRT->GetNextVariableName = VariableServiceGetNextVariableName;
+  gRT->SetVariable         = VariableServiceSetVariable;
+  gRT->QueryVariableInfo   = VariableServiceQueryVariableInfo;
   
   Status = RunAllTestSuites (Framework);
 

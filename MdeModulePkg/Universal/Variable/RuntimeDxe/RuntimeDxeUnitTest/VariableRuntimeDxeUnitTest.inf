@@ -24,11 +24,15 @@
 [Sources]
   # Test Harness
   MockHob.c
+  SctShim.c
+  SctShim.h
   TestData.c
   UnitTestAssertCleanup.h
   VariableRuntimeDxeUnitTest.c
   VariableRuntimeDxeUnitTest.h
   VariableTestDataHelpers.c
+  BlackBoxTest/VariableServicesBBTestConformance.c
+  BlackBoxTest/VariableServicesBBTestMain.h
 
   # Files Under Test
   ../Measurement.c
@@ -139,5 +143,6 @@
 
 
 [BuildOptions]
+# TODO: Add the extra include dir for GCC
   GCC:NOOPT_*_*_CC_FLAGS = -include Uefi.h
-  MSFT:NOOPT_*_*_CC_FLAGS = /FIUefi.h
+  MSFT:NOOPT_*_*_CC_FLAGS = /FIUefi.h /I$(WORKSPACE)\MdeModulePkg\Universal\Variable\RuntimeDxe\RuntimeDxeUnitTest\SctInclude
