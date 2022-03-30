@@ -22,6 +22,64 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 
 BOOLEAN   mTestAtRuntime = FALSE;
+EFI_TPL   mTestTpl = TPL_APPLICATION;
+
+//
+// Mock version of the UEFI Boot Services Table
+//
+EFI_BOOT_SERVICES  MockBoot = {
+  {
+    EFI_BOOT_SERVICES_SIGNATURE,              // Signature
+    EFI_BOOT_SERVICES_REVISION,               // Revision
+    sizeof (EFI_BOOT_SERVICES),               // HeaderSize
+    0,                                        // CRC32
+    0                                         // Reserved
+  },
+  NULL,                                       // RaiseTPL
+  NULL,                                       // RestoreTPL
+  NULL,                                       // AllocatePages
+  NULL,                                       // FreePages
+  NULL,                                       // GetMemoryMap
+  NULL,                                       // AllocatePool
+  NULL,                                       // FreePool
+  NULL,                                       // CreateEvent
+  NULL,                                       // SetTimer
+  NULL,                                       // WaitForEvent
+  NULL,                                       // SignalEvent
+  NULL,                                       // CloseEvent
+  NULL,                                       // CheckEvent
+  NULL,                                       // InstallProtocolInterface
+  NULL,                                       // ReinstallProtocolInterface
+  NULL,                                       // UninstallProtocolInterface
+  NULL,                                       // HandleProtocol
+  (VOID *)NULL,                               // Reserved
+  NULL,                                       // RegisterProtocolNotify
+  NULL,                                       // LocateHandle
+  NULL,                                       // LocateDevicePath
+  NULL,                                       // InstallConfigurationTable
+  NULL,                                       // LoadImage
+  NULL,                                       // StartImage
+  NULL,                                       // Exit
+  NULL,                                       // UnloadImage
+  NULL,                                       // ExitBootServices
+  NULL,                                       // GetNextMonotonicCount
+  NULL,                                       // Stall
+  NULL,                                       // SetWatchdogTimer
+  NULL,                                       // ConnectController
+  NULL,                                       // DisconnectController
+  NULL,                                       // OpenProtocol
+  NULL,                                       // CloseProtocol
+  NULL,                                       // OpenProtocolInformation
+  NULL,                                       // ProtocolsPerHandle
+  NULL,                                       // LocateHandleBuffer
+  NULL,                                       // LocateProtocol
+  NULL,                                       // InstallMultipleProtocolInterfaces
+  NULL,                                       // UninstallMultipleProtocolInterfaces
+  NULL,                                       // CalculateCrc32
+  (EFI_COPY_MEM)CopyMem,                      // CopyMem
+  (EFI_SET_MEM)SetMem,                        // SetMem
+  NULL                                        // CreateEventEx
+};
 
 ///
 /// Mock version of the UEFI Runtime Services Table
@@ -50,11 +108,42 @@ EFI_RUNTIME_SERVICES  MockRuntime = {
   NULL                // QueryVariableInfo
 };
 
-/**
-  Return TRUE if ExitBootServices () has been called.
+EFI_TPL
+EFIAPI
+MockRaiseTpl (
+  IN EFI_TPL  NewTpl
+  )
+{
+  EFI_TPL  OldTpl;
 
-  @retval TRUE If ExitBootServices () has been called.
-**/
+  OldTpl = mTestTpl;
+  if (OldTpl > NewTpl) {
+    DEBUG ((DEBUG_ERROR, "FATAL ERROR - RaiseTpl with OldTpl(0x%x) > NewTpl(0x%x)\n", OldTpl, NewTpl));
+    ASSERT (FALSE);
+  }
+
+  mTestTpl = NewTpl;
+
+  return OldTpl;
+}
+
+VOID
+EFIAPI
+MockRestoreTpl (
+  IN EFI_TPL  NewTpl
+  )
+{
+  EFI_TPL  OldTpl;
+
+  OldTpl = mTestTpl;
+  if (NewTpl > OldTpl) {
+    DEBUG ((DEBUG_ERROR, "FATAL ERROR - RestoreTpl with NewTpl(0x%x) > OldTpl(0x%x)\n", NewTpl, OldTpl));
+    ASSERT (FALSE);
+  }
+
+  mTestTpl = NewTpl;
+}
+
 BOOLEAN
 AtRuntime (
   VOID
@@ -254,8 +343,18 @@ GetVariableConfTestWrapper (
   IN UNIT_TEST_CONTEXT      Context
   )
 {
-  ASSERT (FALSE);
-  return UNIT_TEST_ERROR_TEST_FAILED;
+  UNIT_TEST_STATUS              Result;
+  SCT_HOST_TEST_PRIVATE_DATA    TestData;
+
+  Result = UNIT_TEST_PASSED;
+
+  InitSctPrivateData( &Result, &TestData );
+  GetVariableConfTest (NULL,
+                       (VOID*)gRT,
+                       EFI_TEST_LEVEL_DEFAULT,
+                       (EFI_HANDLE)&TestData);
+
+  return Result;
 }
 
 UNIT_TEST_STATUS
@@ -264,8 +363,16 @@ GetNextVariableNameConfTestWrapper (
   IN UNIT_TEST_CONTEXT      Context
   )
 {
-  ASSERT (FALSE);
-  return UNIT_TEST_ERROR_TEST_FAILED;
+  UNIT_TEST_STATUS              Result;
+  SCT_HOST_TEST_PRIVATE_DATA    TestData;
+
+  UT_ASSERT_NOT_EFI_ERROR( InitSctPrivateData( &Result, &TestData ) );
+  GetNextVariableNameConfTest (NULL,
+                              (VOID*)gRT,
+                              EFI_TEST_LEVEL_DEFAULT,
+                              (EFI_HANDLE)&TestData);
+
+  return Result;
 }
 
 UNIT_TEST_STATUS
@@ -274,8 +381,16 @@ SetVariableConfTestWrapper (
   IN UNIT_TEST_CONTEXT      Context
   )
 {
-  ASSERT (FALSE);
-  return UNIT_TEST_ERROR_TEST_FAILED;
+  UNIT_TEST_STATUS              Result;
+  SCT_HOST_TEST_PRIVATE_DATA    TestData;
+
+  InitSctPrivateData( &Result, &TestData );
+  SetVariableConfTest (NULL,
+                       (VOID*)gRT,
+                       EFI_TEST_LEVEL_DEFAULT,
+                       (EFI_HANDLE)&TestData);
+
+  return Result;
 }
 
 
@@ -335,10 +450,15 @@ UefiTestMain (
   //       But to do that optimally, I think we'd need to be able to deinit. Dunno.
   //       We'll play around with it.
   ASSERT_EFI_ERROR (VariableCommonInitialize());
-  gRT->GetVariable         = VariableServiceGetVariable;
-  gRT->GetNextVariableName = VariableServiceGetNextVariableName;
-  gRT->SetVariable         = VariableServiceSetVariable;
-  gRT->QueryVariableInfo   = VariableServiceQueryVariableInfo;
+  MockRuntime.GetVariable         = VariableServiceGetVariable;
+  MockRuntime.GetNextVariableName = VariableServiceGetNextVariableName;
+  MockRuntime.SetVariable         = VariableServiceSetVariable;
+  MockRuntime.QueryVariableInfo   = VariableServiceQueryVariableInfo;
+
+  MockBoot.RaiseTPL = MockRaiseTpl;
+  MockBoot.RestoreTPL = MockRestoreTpl;
+
+  InitSctShim(&MockBoot, &MockRuntime);
   
   Status = RunAllTestSuites (Framework);
 

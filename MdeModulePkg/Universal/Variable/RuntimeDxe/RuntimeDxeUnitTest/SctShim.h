@@ -12,7 +12,9 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Uefi.h>
 #include <Library/BaseLib.h>
+#include <Library/DebugLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/UnitTestLib.h>
 
 #include <StandardTestLibrary.h>
 #include <TestLoggingLibrary.h>
@@ -23,8 +25,15 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #define SctStrnCmp      StrnCmp
 #define SctCompareGuid  CompareGuid
 #define SctStrLen       StrLen
-#define SctStrCat       IntStrCat
-#define SctStrnCpy      IntStrnCpy
+#define SctStrCat       UnsafeStrCat
+#define SctStrnCpy      UnsafeStrnCpy
+#define gHwErrRecGuid   gEfiHardwareErrorVariableGuid
+#define gGlobalVariableGuid   gEfiGlobalVariableGuid
+
+#define EFI_MAX_PRINT_BUFFER    1024
+
+#define SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE  SIGNATURE_32('H','T','P','D')
+typedef struct _SCT_HOST_TEST_PRIVATE_DATA SCT_HOST_TEST_PRIVATE_DATA;
 
 //
 // Generic Failure GUID is designed for the test environment issues or
@@ -89,7 +98,7 @@ extern EFI_RUNTIME_SERVICES      *gtRT;
 **/
 CHAR16 *
 EFIAPI
-IntStrnCpy (
+UnsafeStrnCpy (
   OUT     CHAR16                    *Destination,
   IN      CONST CHAR16              *Source,
   IN      UINTN                     Length
@@ -131,7 +140,7 @@ IntStrnCpy (
 **/
 CHAR16 *
 EFIAPI
-IntStrCat (
+UnsafeStrCat (
   IN OUT  CHAR16                    *Destination,
   IN      CONST CHAR16              *Source
   );
@@ -140,5 +149,26 @@ UINTN
 SctXtoi (
   CHAR16                            *str
   );
+
+VOID
+InitSctShim (
+  IN EFI_BOOT_SERVICES    *BS,
+  IN EFI_RUNTIME_SERVICES *RT
+  );
+
+EFI_STATUS
+InitSctPrivateData (
+  IN OUT UNIT_TEST_STATUS             *TestResult,
+  OUT    SCT_HOST_TEST_PRIVATE_DATA   *PrivateData
+  );
+
+struct _SCT_HOST_TEST_PRIVATE_DATA {
+  UINT32                              Signature;
+  EFI_STANDARD_TEST_LIBRARY_PROTOCOL  StandardTest;
+  UNIT_TEST_STATUS                    *ReturnStatus;
+};
+
+#define SCT_HOST_TEST_PRIVATE_DATA_FROM_STSL(a) \
+  CR(a, SCT_HOST_TEST_PRIVATE_DATA, StandardTest, SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE)
 
 #endif // _SCT_SHIM_H_

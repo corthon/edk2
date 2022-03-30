@@ -31,6 +31,8 @@
   VariableRuntimeDxeUnitTest.c
   VariableRuntimeDxeUnitTest.h
   VariableTestDataHelpers.c
+  BlackBoxTest/Guid.c
+  BlackBoxTest/Guid.h
   BlackBoxTest/VariableServicesBBTestConformance.c
   BlackBoxTest/VariableServicesBBTestMain.h
 
@@ -73,6 +75,7 @@
   VarCheckLib
   VariablePolicyLib
   VariablePolicyHelperLib
+  PrintLib
 
 
 [Protocols]
@@ -80,6 +83,8 @@
 
 
 [Guids]
+  gEfiHardwareErrorVariableGuid
+
   ## SOMETIMES_CONSUMES   ## GUID # Signature of Variable store header
   ## SOMETIMES_PRODUCES   ## GUID # Signature of Variable store header
   ## SOMETIMES_CONSUMES   ## HOB
