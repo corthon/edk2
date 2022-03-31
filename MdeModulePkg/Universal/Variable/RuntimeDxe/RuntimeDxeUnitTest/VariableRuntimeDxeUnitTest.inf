@@ -31,6 +31,9 @@
   VariableRuntimeDxeUnitTest.c
   VariableRuntimeDxeUnitTest.h
   VariableTestDataHelpers.c
+  BlackBoxTest/AuthVariableServicesBBTest.h
+  BlackBoxTest/AuthVariableServicesBBTestConformance.c
+  BlackBoxTest/AuthVariableServicesBBTestFunction.c
   BlackBoxTest/Guid.c
   BlackBoxTest/Guid.h
   BlackBoxTest/VariableServicesBBTestConformance.c

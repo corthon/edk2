@@ -362,6 +362,9 @@ Cleanup:
 SCT_TEST_WRAPPER_FUNCTION(GetVariableConfTest)
 SCT_TEST_WRAPPER_FUNCTION(GetNextVariableNameConfTest)
 SCT_TEST_WRAPPER_FUNCTION(SetVariableConfTest)
+SCT_TEST_WRAPPER_FUNCTION(QueryVariableInfoConfTest)
+SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERConfTest)
+SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERFuncTest)
 
 
 /**
@@ -377,6 +380,7 @@ UefiTestMain (
   UNIT_TEST_FRAMEWORK_HANDLE  Framework;
   UNIT_TEST_SUITE_HANDLE      GenericTests;
   UNIT_TEST_SUITE_HANDLE      SctConformanceTests;
+  UNIT_TEST_SUITE_HANDLE      SctAuthConformanceTests;
 
   Framework = NULL;
 
@@ -403,9 +407,9 @@ UefiTestMain (
   AddTestCase (GenericTests, "Dummy Test", "Dummy", DummyTest, NULL, NULL, NULL);
 
   //
-  // Populate the SCT Conformance TDS 3.1-3.3 Unit Test Suite.
+  // Populate the SCT Conformance TDS 3.1-3.3 Unit Test Suite
   //
-  Status = CreateUnitTestSuite (&SctConformanceTests, Framework, "SCT Conformance Tests", "SctConformance", NULL, NULL);
+  Status = CreateUnitTestSuite (&SctConformanceTests, Framework, "SCT Conformance Tests Suite", "SctConformance", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctConformanceTests\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -414,6 +418,19 @@ UefiTestMain (
   AddTestCase (SctConformanceTests, "GetVariableConf Test", "GetVariableConf", GetVariableConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctConformanceTests, "GetNextVariableNameConf Test", "GetNextVariableNameConf", GetNextVariableNameConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctConformanceTests, "SetVariableConf Test", "SetVariableConf", SetVariableConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctConformanceTests, "QueryVariableInfoConf Test", "QueryVariableInfoConf", QueryVariableInfoConfTestWrapper, NULL, NULL, NULL);
+
+  //
+  // Populate the SCT Auth Conformance Unit Test Suite
+  //
+  Status = CreateUnitTestSuite (&SctAuthConformanceTests, Framework, "SCT Auth Conformance Tests Suite 1", "SctAuthConformance", NULL, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctAuthConformanceTests\n"));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+  AddTestCase (SctAuthConformanceTests, "AuthVariableDERConf Test", "AuthVariableDERConf", AuthVariableDERConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctAuthConformanceTests, "AuthVariableDERFunc Test", "AuthVariableDERFunc", AuthVariableDERFuncTestWrapper, NULL, NULL, NULL);
 
 
   // NOTE: This initialization should be performed per-suite, probably.

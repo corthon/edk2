@@ -25,12 +25,8 @@ Abstract:
 #ifndef __AUTHVARIABLESERVICEBBTEST_H__
 #define __AUTHVARIABLESERVICEBBTEST_H__
 
-#include "Efi.h"
+#include <Uefi.h>
 #include "Guid.h"
-#include <Library/EfiTestLib.h>
-
-#include EFI_TEST_PROTOCOL_DEFINITION(TestRecoveryLibrary)
-#include EFI_TEST_PROTOCOL_DEFINITION(TestLoggingLibrary)
 
 #define EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS   0x00000020
 #define EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS              0x00000010
