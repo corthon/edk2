@@ -23,7 +23,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #define EFI_TEST_RECOVERY_LIBRARY_PROTOCOL  VOID
 #define SctStrCmp       StrCmp
 #define SctStrnCmp      StrnCmp
-#define SctCompareGuid  CompareGuid
 #define SctStrLen       StrLen
 #define SctStrCat       UnsafeStrCat
 #define SctStrnCpy      UnsafeStrnCpy
@@ -143,6 +142,12 @@ EFIAPI
 UnsafeStrCat (
   IN OUT  CHAR16                    *Destination,
   IN      CONST CHAR16              *Source
+  );
+
+INTN
+SctCompareGuid(
+  IN EFI_GUID     *Guid1,
+  IN EFI_GUID     *Guid2
   );
 
 UINTN
