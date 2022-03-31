@@ -108,6 +108,12 @@ EFI_RUNTIME_SERVICES  MockRuntime = {
   NULL                // QueryVariableInfo
 };
 
+VOID
+EFIAPI
+RecordSecureBootPolicyVarData (
+  VOID
+  );
+
 EFI_TPL
 EFIAPI
 MockRaiseTpl (
@@ -423,7 +429,7 @@ UefiTestMain (
   //
   // Populate the SCT Auth Conformance Unit Test Suite
   //
-  Status = CreateUnitTestSuite (&SctAuthConformanceTests, Framework, "SCT Auth Conformance Tests Suite 1", "SctAuthConformance", NULL, NULL);
+  Status = CreateUnitTestSuite (&SctAuthConformanceTests, Framework, "SCT Auth Conformance Tests Suite", "SctAuthConformance", NULL, NULL);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctAuthConformanceTests\n"));
     Status = EFI_OUT_OF_RESOURCES;
@@ -445,6 +451,8 @@ UefiTestMain (
   MockBoot.RaiseTPL = MockRaiseTpl;
   MockBoot.RestoreTPL = MockRestoreTpl;
 
+  ASSERT_EFI_ERROR (VariableWriteServiceInitialize());
+  RecordSecureBootPolicyVarData();
   InitSctShim(&MockBoot, &MockRuntime);
   
   Status = RunAllTestSuites (Framework);

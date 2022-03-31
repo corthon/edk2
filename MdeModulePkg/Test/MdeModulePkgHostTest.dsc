@@ -50,7 +50,9 @@
       TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
       AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
       DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
-      BaseCryptLib|CryptoPkg/Library/BaseCryptLibNull/BaseCryptLibNull.inf                    # TODO: Mock
+      BaseCryptLib|CryptoPkg/Library/BaseCryptLib/UnitTestHostBaseCryptLib.inf
+      OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
+      RngLib|MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/RngLibHostTestLfsr/RngLibHostTestLfsr.inf
       PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf   # TODO: Mock
       UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
       DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
