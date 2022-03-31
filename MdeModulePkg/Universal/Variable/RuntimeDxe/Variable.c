@@ -19,7 +19,6 @@
 Copyright (c) 2006 - 2020, Intel Corporation. All rights reserved.<BR>
 (C) Copyright 2015-2018 Hewlett Packard Enterprise Development LP<BR>
 Copyright (c) Microsoft Corporation.<BR>
-Copyright (c) 2022, ARM Limited. All rights reserved.<BR>
 
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -2661,22 +2660,14 @@ VariableServiceSetVariable (
   }
 
   //
-  // Check if the combination of attribute bits is valid.
+  //  Make sure if runtime bit is set, boot service bit is set also.
   //
   if ((Attributes & (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)) == EFI_VARIABLE_RUNTIME_ACCESS) {
-    //
-    // Make sure if runtime bit is set, boot service bit is set also.
-    //
     if ((Attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS) != 0) {
       return EFI_UNSUPPORTED;
     } else {
       return EFI_INVALID_PARAMETER;
     }
-  } else if ((Attributes & EFI_VARIABLE_ATTRIBUTES_MASK) == EFI_VARIABLE_NON_VOLATILE) {
-    //
-    // Only EFI_VARIABLE_NON_VOLATILE attribute is invalid
-    //
-    return EFI_INVALID_PARAMETER;
   } else if ((Attributes & VARIABLE_ATTRIBUTE_AT_AW) != 0) {
     if (!mVariableModuleGlobal->VariableGlobal.AuthSupport) {
       //
@@ -3151,11 +3142,6 @@ VariableServiceQueryVariableInfo (
     // Make sure the Attributes combination is supported by the platform.
     //
     return EFI_UNSUPPORTED;
-  } else if ((Attributes & EFI_VARIABLE_ATTRIBUTES_MASK) == EFI_VARIABLE_NON_VOLATILE) {
-    //
-    // Only EFI_VARIABLE_NON_VOLATILE attribute is invalid
-    //
-    return EFI_INVALID_PARAMETER;
   } else if ((Attributes & (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)) == EFI_VARIABLE_RUNTIME_ACCESS) {
     //
     // Make sure if runtime bit is set, boot service bit is set also.
