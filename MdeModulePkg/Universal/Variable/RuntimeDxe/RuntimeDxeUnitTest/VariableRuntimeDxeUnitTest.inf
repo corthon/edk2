@@ -37,7 +37,9 @@
   BlackBoxTest/Guid.c
   BlackBoxTest/Guid.h
   BlackBoxTest/VariableServicesBBTestConformance.c
+  BlackBoxTest/VariableServicesBBTestFunction.c
   BlackBoxTest/VariableServicesBBTestMain.h
+  BlackBoxTest/VariableServicesBBTestStress.c
 
   # Files Under Test
   ../Measurement.c

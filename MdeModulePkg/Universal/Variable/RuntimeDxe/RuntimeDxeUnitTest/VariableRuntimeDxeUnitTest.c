@@ -150,6 +150,16 @@ MockRestoreTpl (
   mTestTpl = NewTpl;
 }
 
+EFI_STATUS
+EFIAPI
+MockFreePool (
+  VOID    *Pool
+  )
+{
+  FreePool(Pool);
+  return EFI_SUCCESS;
+}
+
 BOOLEAN
 AtRuntime (
   VOID
@@ -371,6 +381,14 @@ SCT_TEST_WRAPPER_FUNCTION(SetVariableConfTest)
 SCT_TEST_WRAPPER_FUNCTION(QueryVariableInfoConfTest)
 SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERConfTest)
 SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(GetVariableFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(GetNextVariableNameFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(SetVariableFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(QueryVariableInfoFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(HardwareErrorRecordConfTest)
+SCT_TEST_WRAPPER_FUNCTION(HardwareErrorRecordFuncTest)
+SCT_TEST_WRAPPER_FUNCTION(MultipleStressTest)
+SCT_TEST_WRAPPER_FUNCTION(OverflowStressTest)
 
 
 /**
@@ -386,7 +404,10 @@ UefiTestMain (
   UNIT_TEST_FRAMEWORK_HANDLE  Framework;
   UNIT_TEST_SUITE_HANDLE      GenericTests;
   UNIT_TEST_SUITE_HANDLE      SctConformanceTests;
-  UNIT_TEST_SUITE_HANDLE      SctAuthConformanceTests;
+  UNIT_TEST_SUITE_HANDLE      SctFunctionalTests;
+  UNIT_TEST_SUITE_HANDLE      SctAuthTests;
+  UNIT_TEST_SUITE_HANDLE      SctHwErrTests;
+  UNIT_TEST_SUITE_HANDLE      SctStressTests;
 
   Framework = NULL;
 
@@ -413,7 +434,7 @@ UefiTestMain (
   AddTestCase (GenericTests, "Dummy Test", "Dummy", DummyTest, NULL, NULL, NULL);
 
   //
-  // Populate the SCT Conformance TDS 3.1-3.3 Unit Test Suite
+  // Populate the SCT Conformance TDS 3.1-3.4 Unit Test Suite
   //
   Status = CreateUnitTestSuite (&SctConformanceTests, Framework, "SCT Conformance Tests Suite", "SctConformance", NULL, NULL);
   if (EFI_ERROR (Status)) {
@@ -427,16 +448,54 @@ UefiTestMain (
   AddTestCase (SctConformanceTests, "QueryVariableInfoConf Test", "QueryVariableInfoConf", QueryVariableInfoConfTestWrapper, NULL, NULL, NULL);
 
   //
-  // Populate the SCT Auth Conformance Unit Test Suite
+  // Populate the SCT Funtional TDS 4.1-4.4 Unit Test Suite
   //
-  Status = CreateUnitTestSuite (&SctAuthConformanceTests, Framework, "SCT Auth Conformance Tests Suite", "SctAuthConformance", NULL, NULL);
+  Status = CreateUnitTestSuite (&SctFunctionalTests, Framework, "SCT Functional Tests Suite", "SctFunctional", NULL, NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctAuthConformanceTests\n"));
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctFunctionalTests\n"));
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
-  AddTestCase (SctAuthConformanceTests, "AuthVariableDERConf Test", "AuthVariableDERConf", AuthVariableDERConfTestWrapper, NULL, NULL, NULL);
-  AddTestCase (SctAuthConformanceTests, "AuthVariableDERFunc Test", "AuthVariableDERFunc", AuthVariableDERFuncTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctFunctionalTests, "GetVariableFunc Test", "GetVariableFunc", GetVariableFuncTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctFunctionalTests, "GetNextVariableNameFunc Test", "GetNextVariableNameFunc", GetNextVariableNameFuncTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctFunctionalTests, "SetVariableFunc Test", "SetVariableFunc", SetVariableFuncTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctFunctionalTests, "QueryVariableInfoFunc Test", "QueryVariableInfoFunc", QueryVariableInfoFuncTestWrapper, NULL, NULL, NULL);
+
+  //
+  // Populate the SCT Auth Unit Test Suite
+  //
+  Status = CreateUnitTestSuite (&SctAuthTests, Framework, "SCT Auth Tests Suite", "SctAuth", NULL, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctAuthTests\n"));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+  AddTestCase (SctAuthTests, "AuthVariableDERConf Test", "AuthVariableDERConf", AuthVariableDERConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctAuthTests, "AuthVariableDERFunc Test", "AuthVariableDERFunc", AuthVariableDERFuncTestWrapper, NULL, NULL, NULL);
+
+  //
+  // Populate the SCT HwErrRecord Unit Test Suite
+  //
+  Status = CreateUnitTestSuite (&SctHwErrTests, Framework, "SCT HwErrRecord Tests Suite", "SctHwErr", NULL, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctHwErrTests\n"));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+  AddTestCase (SctHwErrTests, "HardwareErrorRecordConf Test", "HardwareErrorRecordConf", HardwareErrorRecordConfTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctHwErrTests, "HardwareErrorRecordFunc Test", "HardwareErrorRecordFunc", HardwareErrorRecordFuncTestWrapper, NULL, NULL, NULL);
+
+  //
+  // Populate the SCT Stress TDS 5.1-5.2 Test Suite
+  //
+  Status = CreateUnitTestSuite (&SctStressTests, Framework, "SCT Stress Tests Suite", "SctStress", NULL, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for SctStressTests\n"));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+  AddTestCase (SctStressTests, "MultipleStress Test", "MultipleStress", MultipleStressTestWrapper, NULL, NULL, NULL);
+  AddTestCase (SctStressTests, "OverflowStress Test", "OverflowStress", OverflowStressTestWrapper, NULL, NULL, NULL);
 
 
   // NOTE: This initialization should be performed per-suite, probably.
@@ -450,6 +509,7 @@ UefiTestMain (
 
   MockBoot.RaiseTPL = MockRaiseTpl;
   MockBoot.RestoreTPL = MockRestoreTpl;
+  MockBoot.FreePool = MockFreePool;
 
   ASSERT_EFI_ERROR (VariableWriteServiceInitialize());
   RecordSecureBootPolicyVarData();

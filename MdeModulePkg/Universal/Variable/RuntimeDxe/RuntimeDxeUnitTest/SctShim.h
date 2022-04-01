@@ -155,6 +155,12 @@ SctXtoi (
   CHAR16                            *str
   );
 
+CHAR16*
+SctPoolPrint (
+  IN CONST CHAR16     *Fmt,
+  ...
+  );
+
 VOID
 InitSctShim (
   IN EFI_BOOT_SERVICES    *BS,

@@ -10,6 +10,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Uefi.h>
 #include <Base.h>
 #include <Library/BaseLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/PrintLib.h>
 #include <Library/UnitTestLib.h>
 
@@ -110,6 +111,31 @@ SctXtoi (
   }
 
     return u;
+}
+
+CHAR16*
+SctPoolPrint (
+  IN CONST CHAR16     *Fmt,
+  ...
+  )
+{
+  UINTN     Count;
+  VA_LIST   Args;
+  CHAR16    *Output;
+
+  VA_START (Args, Fmt);
+  Count = SPrintLength (Fmt, Args);
+  VA_END (Args);
+
+  Output = AllocatePool(Count);
+
+  if (Output != NULL) {
+    VA_START (Args, Fmt);
+    UnicodeVSPrint (Output, Count, Fmt, Args);
+    VA_END (Args);
+  }
+
+  return Output;
 }
 
 EFI_STATUS
