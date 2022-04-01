@@ -28,7 +28,9 @@
         "IgnoreFiles": [
             "Library/LzmaCustomDecompressLib",
             "Library/BrotliCustomDecompressLib",
-            "Universal/RegularExpressionDxe"
+            "Universal/RegularExpressionDxe",
+            "Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/BlackBoxTest",
+            "Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/SctInclude",
         ]
     },
     ## options defined ci/Plugin/CompilerPlugin
