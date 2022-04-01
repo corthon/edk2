@@ -5,12 +5,12 @@
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
-  which accompanies this distribution.  The full text of the license may be found at 
+  which accompanies this distribution.  The full text of the license may be found at
   http://opensource.org/licenses/bsd-license.php
- 
+
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
- 
+
 **/
 /*++
 
@@ -33,20 +33,20 @@ Abstract:
 // Declarations
 //
 
-EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
+EFI_BB_TEST_PROTOCOL_FIELD  gBBTestProtocolField = {
   VARIABLE_SERVICES_BB_TEST_REVISION,
   VARIABLE_SERVICES_BB_TEST_GUID,
   L"Variable Services Test",
   L"UEFI Variable Services Black-Box Test"
 };
 
-EFI_GUID gSupportProtocolGuid[] = {
+EFI_GUID  gSupportProtocolGuid[] = {
   EFI_STANDARD_TEST_LIBRARY_GUID,
   EFI_TEST_RECOVERY_LIBRARY_GUID,
   EFI_NULL_GUID
 };
 
-EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
+EFI_BB_TEST_ENTRY_FIELD  gBBTestEntryField[] = {
   {
     GET_VARIABLE_CONF_TEST_GUID,
     L"GetVariable_Conf",
@@ -101,9 +101,9 @@ EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
     EFI_TEST_CASE_AUTO,
     SetVariableFuncTest
   },
-  
-#if (EFI_SPECIFICATION_VERSION >= 0x00020000)
-	{
+
+ #if (EFI_SPECIFICATION_VERSION >= 0x00020000)
+  {
     QUERY_VAR_INFO_CONF_TEST_GUID,
     L"QueryVariableInfo_Conf",
     L"Test the consistence of QueryVariableInfo() service.",
@@ -143,9 +143,9 @@ EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
     AuthVariableDERConfTest
   },
 
-#endif
+ #endif
 
-#if (EFI_SPECIFICATION_VERSION >= 0x0002000A)
+ #if (EFI_SPECIFICATION_VERSION >= 0x0002000A)
   {
     HARDWARE_ERROR_RECORD_FUNC_TEST_GUID,
     L"HardwareErrorRecord_Func",
@@ -155,7 +155,7 @@ EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
     EFI_TEST_CASE_AUTO,
     HardwareErrorRecordFuncTest
   },
-  
+
   {
     HARDWARE_ERROR_RECORD_CONF_TEST_GUID,
     L"HardwareErrorRecord_Conf",
@@ -166,9 +166,9 @@ EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
     HardwareErrorRecordConfTest
   },
 
-#endif
+ #endif
 
-#ifdef EFI_TEST_EXHAUSTIVE
+ #ifdef EFI_TEST_EXHAUSTIVE
   {
     MULTIPLE_STRESS_TEST_GUID,
     L"Multiple_Stress",
@@ -187,15 +187,15 @@ EFI_BB_TEST_ENTRY_FIELD gBBTestEntryField[] = {
     EFI_TEST_CASE_AUTO | EFI_TEST_CASE_DESTRUCTIVE,
     OverflowStressTest
   },
-#endif
+ #endif
 
   0
 };
 
-EFI_BB_TEST_PROTOCOL *gBBTestProtocolInterface;
+EFI_BB_TEST_PROTOCOL  *gBBTestProtocolInterface;
 
-EFI_GUID gTestVendor1Guid = TEST_VENDOR1_GUID;
-EFI_GUID gTestVendor2Guid = TEST_VENDOR2_GUID;
+EFI_GUID  gTestVendor1Guid = TEST_VENDOR1_GUID;
+EFI_GUID  gTestVendor2Guid = TEST_VENDOR2_GUID;
 
 //
 // Prototypes
@@ -204,20 +204,19 @@ EFI_GUID gTestVendor2Guid = TEST_VENDOR2_GUID;
 EFI_STATUS
 EFIAPI
 InitializeVariableServicesBbTest (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   );
 
 EFI_STATUS
 EFIAPI
 UnloadVariableServicesBbTest (
-  IN EFI_HANDLE       ImageHandle
+  IN EFI_HANDLE  ImageHandle
   );
 
 //
 // Functions
 //
-
 
 /**
  *  Creates/installs the BlackBox Interface and the Entry Point list.
@@ -230,8 +229,8 @@ UnloadVariableServicesBbTest (
 EFI_STATUS
 EFIAPI
 InitializeVariableServicesBbTest (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   SctInitializeLib (ImageHandle, SystemTable);
@@ -246,7 +245,6 @@ InitializeVariableServicesBbTest (
            );
 }
 
-
 /**
  *  Unloads the BlackBox Interface and the Entry Point list.
  *  @param ImageHandle    The image handle.
@@ -255,7 +253,7 @@ InitializeVariableServicesBbTest (
 EFI_STATUS
 EFIAPI
 UnloadVariableServicesBbTest (
-  IN EFI_HANDLE       ImageHandle
+  IN EFI_HANDLE  ImageHandle
   )
 {
   return EfiUninstallAndFreeBBTestInterface (
@@ -263,7 +261,6 @@ UnloadVariableServicesBbTest (
            gBBTestProtocolInterface
            );
 }
-
 
 /**
  *  Support function - Get test support protocol library.
@@ -282,18 +279,18 @@ GetTestSupportLibrary (
   OUT EFI_TEST_LOGGING_LIBRARY_PROTOCOL   **LoggingLib
   )
 {
-  EFI_STATUS            Status;
+  EFI_STATUS  Status;
 
   //
   // Get the standard test support library interface
   //
   *StandardLib = NULL;
-  Status = gtBS->HandleProtocol (
-                   SupportHandle,
-                   &gEfiStandardTestLibraryGuid,
-                   (VOID **) StandardLib
-                   );
-  if (EFI_ERROR(Status)) {
+  Status       = gtBS->HandleProtocol (
+                         SupportHandle,
+                         &gEfiStandardTestLibraryGuid,
+                         (VOID **)StandardLib
+                         );
+  if (EFI_ERROR (Status)) {
     return Status;
   }
 
@@ -301,12 +298,12 @@ GetTestSupportLibrary (
   // Get the test recovery support library interface
   //
   *RecoveryLib = NULL;
-  Status = gtBS->HandleProtocol (
-                   SupportHandle,
-                   &gEfiTestRecoveryLibraryGuid,
-                   (VOID **) RecoveryLib
-                   );
-  if (EFI_ERROR(Status)) {
+  Status       = gtBS->HandleProtocol (
+                         SupportHandle,
+                         &gEfiTestRecoveryLibraryGuid,
+                         (VOID **)RecoveryLib
+                         );
+  if (EFI_ERROR (Status)) {
     return Status;
   }
 
@@ -314,11 +311,11 @@ GetTestSupportLibrary (
   // Get the test logging support library interface
   //
   *LoggingLib = NULL;
-  Status = gtBS->HandleProtocol (
-                   SupportHandle,
-                   &gEfiTestLoggingLibraryGuid,
-                   (VOID **) LoggingLib
-                   );
+  Status      = gtBS->HandleProtocol (
+                        SupportHandle,
+                        &gEfiTestLoggingLibraryGuid,
+                        (VOID **)LoggingLib
+                        );
   // Test logging support library is optional
 
   //
@@ -327,30 +324,31 @@ GetTestSupportLibrary (
   return EFI_SUCCESS;
 }
 
-
 #if (EFI_SPECIFICATION_VERSION >= 0x0002000A)
 EFI_STATUS
 Myitox (
-  IN UINTN        Num,
-  OUT CHAR16      *StringNum
-)
+  IN UINTN    Num,
+  OUT CHAR16  *StringNum
+  )
 {
-  UINTN          CurrentNum;
-  UINTN          CurrentPos;
-  const UINTN    Times = 4;
-  
+  UINTN        CurrentNum;
+  UINTN        CurrentPos;
+  const UINTN  Times = 4;
+
   for ( CurrentPos = 0; CurrentPos < Times; CurrentPos++ ) {
     CurrentNum = Num % 16;
-    Num /= 16;
-    
-    if ( CurrentNum < 10 )
-      StringNum[Times-CurrentPos-1] = (CHAR16)( L'0' + CurrentNum );
-    else
-      StringNum[Times-CurrentPos-1] = (CHAR16)( L'A' + ( CurrentNum - 10 ) );
+    Num       /= 16;
+
+    if ( CurrentNum < 10 ) {
+      StringNum[Times-CurrentPos-1] = (CHAR16)(L'0' + CurrentNum);
+    } else {
+      StringNum[Times-CurrentPos-1] = (CHAR16)(L'A' + (CurrentNum - 10));
+    }
   }
-  
+
   StringNum[Times] = '\0';
-  
+
   return EFI_SUCCESS;
 }
+
 #endif
