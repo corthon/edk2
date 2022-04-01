@@ -15,7 +15,7 @@
   INF_VERSION                    = 0x00010005
   BASE_NAME                      = MockUefiLib
   FILE_GUID                      = 2834A68A-7201-4931-B953-53EA5E45AA14
-  MODULE_TYPE                    = UEFI_DRIVER
+  MODULE_TYPE                    = HOST_APPLICATION
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = UefiLib|HOST_APPLICATION
   #CONSTRUCTOR                    = UefiLibConstructor
