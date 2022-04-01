@@ -17,51 +17,51 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "VariableServicesBBTestMain.h"
 #include "SctShim.h"
 
-EFI_GUID gTestVendor1Guid = TEST_VENDOR1_GUID;
-EFI_GUID gTestVendor2Guid = TEST_VENDOR2_GUID;
-EFI_GUID gTestGenericFailureGuid = TEST_GENERIC_FAILURE_GUID;
+EFI_GUID  gTestVendor1Guid        = TEST_VENDOR1_GUID;
+EFI_GUID  gTestVendor2Guid        = TEST_VENDOR2_GUID;
+EFI_GUID  gTestGenericFailureGuid = TEST_GENERIC_FAILURE_GUID;
 
-EFI_BOOT_SERVICES   *gtBS = NULL;
+EFI_BOOT_SERVICES  *gtBS = NULL;
 
 CHAR16 *
 EFIAPI
 UnsafeStrnCpy (
-  OUT     CHAR16                    *Destination,
-  IN      CONST CHAR16              *Source,
-  IN      UINTN                     Length
+  OUT     CHAR16        *Destination,
+  IN      CONST CHAR16  *Source,
+  IN      UINTN         Length
   )
 {
-    // NOTE: This is *VERY* unsafe. But it's just a test... so...
-    StrnCpyS(Destination, (UINTN)-1, Source, Length);
-    return Destination;
+  // NOTE: This is *VERY* unsafe. But it's just a test... so...
+  StrnCpyS (Destination, (UINTN)-1, Source, Length);
+  return Destination;
 }
 
 CHAR16 *
 EFIAPI
 UnsafeStrCat (
-  IN OUT  CHAR16                    *Destination,
-  IN      CONST CHAR16              *Source
+  IN OUT  CHAR16        *Destination,
+  IN      CONST CHAR16  *Source
   )
 {
-    // NOTE: This is *VERY* unsafe. But it's just a test... so...
-    StrCatS(Destination, (UINTN)-1, Source);
-    return Destination;
+  // NOTE: This is *VERY* unsafe. But it's just a test... so...
+  StrCatS (Destination, (UINTN)-1, Source);
+  return Destination;
 }
 
 INTN
-SctCompareGuid(
-  IN EFI_GUID     *Guid1,
-  IN EFI_GUID     *Guid2
+SctCompareGuid (
+  IN EFI_GUID  *Guid1,
+  IN EFI_GUID  *Guid2
   )
 {
-  INT32       *g1, *g2, r;
+  INT32  *g1, *g2, r;
 
   //
   // Compare 32 bits at a time
   //
 
-  g1 = (INT32 *) Guid1;
-  g2 = (INT32 *) Guid2;
+  g1 = (INT32 *)Guid1;
+  g2 = (INT32 *)Guid2;
 
   r  = g1[0] - g2[0];
   r |= g1[1] - g2[1];
@@ -73,61 +73,62 @@ SctCompareGuid(
 
 UINTN
 SctXtoi (
-    CHAR16  *str
-    )
+  CHAR16  *str
+  )
 {
-  UINTN       u;
-  CHAR16      c;
+  UINTN   u;
+  CHAR16  c;
 
   // skip preceeding white space
   while (*str && *str == ' ') {
-      str += 1;
+    str += 1;
   }
 
   // skip preceeding zeros
   while (*str && *str == '0') {
-      str += 1;
+    str += 1;
   }
 
   // skip preceeding white space
-  if (*str && (*str == 'x' || *str == 'X')) {
-      str += 1;
+  if (*str && ((*str == 'x') || (*str == 'X'))) {
+    str += 1;
   }
 
   // convert hex digits
   u = 0;
   c = *(str++);
   while (c) {
-      if (c >= 'a'  &&  c <= 'f') {
-          c -= 'a' - 'A';
-      }
+    if ((c >= 'a') &&  (c <= 'f')) {
+      c -= 'a' - 'A';
+    }
 
-      if ((c >= '0'  &&  c <= '9')  ||  (c >= 'A'  &&  c <= 'F')) {
-          u = (u << 4)  |  (c - (c >= 'A' ? 'A'-10 : '0'));
-      } else {
-          break;
-      }
-      c = *(str++);
+    if (((c >= '0') &&  (c <= '9'))  ||  ((c >= 'A') &&  (c <= 'F'))) {
+      u = (u << 4)  |  (c - (c >= 'A' ? 'A'-10 : '0'));
+    } else {
+      break;
+    }
+
+    c = *(str++);
   }
 
-    return u;
+  return u;
 }
 
-CHAR16*
+CHAR16 *
 SctPoolPrint (
-  IN CONST CHAR16     *Fmt,
+  IN CONST CHAR16  *Fmt,
   ...
   )
 {
-  UINTN     Count;
-  VA_LIST   Args;
-  CHAR16    *Output;
+  UINTN    Count;
+  VA_LIST  Args;
+  CHAR16   *Output;
 
   VA_START (Args, Fmt);
   Count = SPrintLength (Fmt, Args);
   VA_END (Args);
 
-  Output = AllocatePool(Count);
+  Output = AllocatePool (Count);
 
   if (Output != NULL) {
     VA_START (Args, Fmt);
@@ -140,39 +141,41 @@ SctPoolPrint (
 
 EFI_STATUS
 Myitox (
-  IN UINTN        Num,
-  OUT CHAR16      *StringNum
-)
+  IN UINTN    Num,
+  OUT CHAR16  *StringNum
+  )
 {
-  UINTN          CurrentNum;
-  UINTN          CurrentPos;
-  const UINTN    Times = 4;
-  
+  UINTN        CurrentNum;
+  UINTN        CurrentPos;
+  const UINTN  Times = 4;
+
   for ( CurrentPos = 0; CurrentPos < Times; CurrentPos++ ) {
     CurrentNum = Num % 16;
-    Num /= 16;
-    
-    if ( CurrentNum < 10 )
-      StringNum[Times-CurrentPos-1] = (CHAR16)( L'0' + CurrentNum );
-    else
-      StringNum[Times-CurrentPos-1] = (CHAR16)( L'A' + ( CurrentNum - 10 ) );
+    Num       /= 16;
+
+    if ( CurrentNum < 10 ) {
+      StringNum[Times-CurrentPos-1] = (CHAR16)(L'0' + CurrentNum);
+    } else {
+      StringNum[Times-CurrentPos-1] = (CHAR16)(L'A' + (CurrentNum - 10));
+    }
   }
-  
+
   StringNum[Times] = '\0';
-  
+
   return EFI_SUCCESS;
 }
 
 EFI_STATUS
 EFIAPI
 HostTestRecordAssertion (
-  IN EFI_STANDARD_TEST_LIBRARY_PROTOCOL     *This,
-  IN EFI_TEST_ASSERTION                     Type,
-  IN EFI_GUID                               EventId,
-  IN CHAR16                                 *Description,
-  IN CHAR16                                 *Detail,
+  IN EFI_STANDARD_TEST_LIBRARY_PROTOCOL  *This,
+  IN EFI_TEST_ASSERTION                  Type,
+  IN EFI_GUID                            EventId,
+  IN CHAR16                              *Description,
+  IN CHAR16                              *Detail,
   ...
   )
+
 /*++
 
 Routine Description:
@@ -195,12 +198,12 @@ Returns:
 
 --*/
 {
-  VA_LIST                         Marker;
-  CHAR8                           AsciiBuffer[EFI_MAX_PRINT_BUFFER];
-  CHAR16                          AssertionDetail[EFI_MAX_PRINT_BUFFER];
-  CHAR16                          AssertionType[10];
-  UINTN                           LogLevel;
-  SCT_HOST_TEST_PRIVATE_DATA      *Private;
+  VA_LIST                     Marker;
+  CHAR8                       AsciiBuffer[EFI_MAX_PRINT_BUFFER];
+  CHAR16                      AssertionDetail[EFI_MAX_PRINT_BUFFER];
+  CHAR16                      AssertionType[10];
+  UINTN                       LogLevel;
+  SCT_HOST_TEST_PRIVATE_DATA  *Private;
 
   Private = SCT_HOST_TEST_PRIVATE_DATA_FROM_STSL (This);
 
@@ -214,7 +217,7 @@ Returns:
   //
   // Build assertion detail string
   //
-  VA_START(Marker, Detail);
+  VA_START (Marker, Detail);
   UnicodeVSPrint (AssertionDetail, EFI_MAX_PRINT_BUFFER, Detail, Marker);
   VA_END (Marker);
 
@@ -226,32 +229,36 @@ Returns:
   // Write log file detail data
   //
   switch (Type) {
-  case EFI_TEST_ASSERTION_PASSED:
-    StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"PASS");
-    LogLevel = UNIT_TEST_LOG_LEVEL_VERBOSE;
-    break;
-  case EFI_TEST_ASSERTION_WARNING:
-    StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"WARNING");
-    LogLevel = UNIT_TEST_LOG_LEVEL_WARN;
-    break;
-  case EFI_TEST_ASSERTION_FAILED:
-    StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"FAILURE");
-    *Private->ReturnStatus = UNIT_TEST_ERROR_TEST_FAILED;
-    LogLevel = UNIT_TEST_LOG_LEVEL_ERROR;
-    break;
-  default:
-    return EFI_INVALID_PARAMETER;
-    break;
+    case EFI_TEST_ASSERTION_PASSED:
+      StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"PASS");
+      LogLevel = UNIT_TEST_LOG_LEVEL_VERBOSE;
+      break;
+    case EFI_TEST_ASSERTION_WARNING:
+      StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"WARNING");
+      LogLevel = UNIT_TEST_LOG_LEVEL_WARN;
+      break;
+    case EFI_TEST_ASSERTION_FAILED:
+      StrCpyS (AssertionType, EFI_MAX_PRINT_BUFFER, L"FAILURE");
+      *Private->ReturnStatus = UNIT_TEST_ERROR_TEST_FAILED;
+      LogLevel               = UNIT_TEST_LOG_LEVEL_ERROR;
+      break;
+    default:
+      return EFI_INVALID_PARAMETER;
+      break;
   }
 
-  AsciiSPrintUnicodeFormat (AsciiBuffer, EFI_MAX_PRINT_BUFFER,
-      L"%s -- %s\n"
-      L"%g\n"
-      L"%s\n",
-      Description, AssertionType,
-      &EventId,
-      AssertionDetail);
-  UnitTestLog(LogLevel, AsciiBuffer);
+  AsciiSPrintUnicodeFormat (
+    AsciiBuffer,
+    EFI_MAX_PRINT_BUFFER,
+    L"%s -- %s\n"
+    L"%g\n"
+    L"%s\n",
+    Description,
+    AssertionType,
+    &EventId,
+    AssertionDetail
+    );
+  UnitTestLog (LogLevel, AsciiBuffer);
 
   return EFI_SUCCESS;
 }
@@ -259,11 +266,12 @@ Returns:
 EFI_STATUS
 EFIAPI
 HostTestRecordMessage (
-  IN EFI_STANDARD_TEST_LIBRARY_PROTOCOL     *This,
-  IN EFI_VERBOSE_LEVEL                      VerboseLevel,
-  IN CHAR16                                 *Message,
+  IN EFI_STANDARD_TEST_LIBRARY_PROTOCOL  *This,
+  IN EFI_VERBOSE_LEVEL                   VerboseLevel,
+  IN CHAR16                              *Message,
   ...
-)
+  )
+
 /*++
 
 Routine Description:
@@ -286,23 +294,24 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                      Status;
-  VA_LIST                         Marker;
-  CHAR8                           AsciiBuffer[EFI_MAX_PRINT_BUFFER];
-  SCT_HOST_TEST_PRIVATE_DATA      *Private;
+  EFI_STATUS                  Status;
+  VA_LIST                     Marker;
+  CHAR8                       AsciiBuffer[EFI_MAX_PRINT_BUFFER];
+  SCT_HOST_TEST_PRIVATE_DATA  *Private;
 
-  Status = EFI_SUCCESS;
+  Status  = EFI_SUCCESS;
   Private = SCT_HOST_TEST_PRIVATE_DATA_FROM_STSL (This);
 
   if (VerboseLevel <= EFI_TEST_LEVEL_MINIMAL) {
-    VA_START(Marker, Message);
+    VA_START (Marker, Message);
     AsciiVSPrintUnicodeFormat (AsciiBuffer, EFI_MAX_PRINT_BUFFER, Message, Marker);
     VA_END (Marker);
 
     if ( AsciiStrnLenS (AsciiBuffer, EFI_MAX_PRINT_BUFFER) + 3 < EFI_MAX_PRINT_BUFFER ) {
       AsciiStrCatS (AsciiBuffer, EFI_MAX_PRINT_BUFFER, "\r\n");
     }
-    UnitTestLog(UNIT_TEST_LOG_LEVEL_VERBOSE, AsciiBuffer);
+
+    UnitTestLog (UNIT_TEST_LOG_LEVEL_VERBOSE, AsciiBuffer);
   }
 
   return Status;
@@ -316,20 +325,20 @@ GetTestSupportLibrary (
   OUT EFI_TEST_LOGGING_LIBRARY_PROTOCOL   **LoggingLib
   )
 {
-  SCT_HOST_TEST_PRIVATE_DATA      *PrivateData;
+  SCT_HOST_TEST_PRIVATE_DATA  *PrivateData;
 
-  PrivateData = (SCT_HOST_TEST_PRIVATE_DATA*)SupportHandle;
+  PrivateData  = (SCT_HOST_TEST_PRIVATE_DATA *)SupportHandle;
   *StandardLib = &PrivateData->StandardTest;
   *RecoveryLib = NULL;
-  *LoggingLib = NULL;
+  *LoggingLib  = NULL;
 
   return EFI_SUCCESS;
 }
 
 VOID
 InitSctShim (
-  IN EFI_BOOT_SERVICES    *BS,
-  IN EFI_RUNTIME_SERVICES *RT
+  IN EFI_BOOT_SERVICES     *BS,
+  IN EFI_RUNTIME_SERVICES  *RT
   )
 {
   gtBS = BS;
@@ -337,14 +346,14 @@ InitSctShim (
 
 EFI_STATUS
 InitSctPrivateData (
-  IN OUT UNIT_TEST_STATUS             *TestResult,
-  OUT    SCT_HOST_TEST_PRIVATE_DATA   *PrivateData
+  IN OUT UNIT_TEST_STATUS            *TestResult,
+  OUT    SCT_HOST_TEST_PRIVATE_DATA  *PrivateData
   )
 {
-  ZeroMem(PrivateData, sizeof(*PrivateData));
-  PrivateData->Signature = SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE;
-  PrivateData->ReturnStatus = TestResult;
+  ZeroMem (PrivateData, sizeof (*PrivateData));
+  PrivateData->Signature                    = SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE;
+  PrivateData->ReturnStatus                 = TestResult;
   PrivateData->StandardTest.RecordAssertion = HostTestRecordAssertion;
-  PrivateData->StandardTest.RecordMessage = HostTestRecordMessage;
+  PrivateData->StandardTest.RecordMessage   = HostTestRecordMessage;
   return EFI_SUCCESS;
 }

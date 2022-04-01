@@ -9,8 +9,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Uefi.h>
 
-
-
 /**
   Returns the next instance of the matched GUID HOB from the starting HOB.
 

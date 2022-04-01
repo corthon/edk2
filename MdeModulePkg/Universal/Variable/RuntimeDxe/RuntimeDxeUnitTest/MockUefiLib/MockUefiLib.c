@@ -22,7 +22,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Library/UefiLib.h>
 
-
 /**
   Retrieves a pointer to the system configuration table from the EFI System Table
   based on a specified GUID.
@@ -48,8 +47,8 @@ EfiGetSystemConfigurationTable (
   OUT VOID      **Table
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -89,8 +88,8 @@ EfiCreateProtocolNotifyEvent (
   OUT VOID              **Registration
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -123,8 +122,8 @@ EfiNamedEventListen (
   OUT VOID             *Registration OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -146,8 +145,8 @@ EfiNamedEventSignal (
   IN CONST EFI_GUID  *Name
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -168,8 +167,8 @@ EfiEventGroupSignal (
   IN CONST EFI_GUID  *EventGroup
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -188,8 +187,8 @@ EfiEventEmptyFunction (
   IN VOID       *Context
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (FALSE);
+  return;
 }
 
 /**
@@ -210,8 +209,8 @@ EfiGetCurrentTpl (
   VOID
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -268,7 +267,7 @@ EfiAcquireLock (
   ASSERT (Lock != NULL);
   ASSERT (Lock->Lock == EfiLockReleased);
 
-  Lock->Lock     = EfiLockAcquired;
+  Lock->Lock = EfiLockAcquired;
 }
 
 /**
@@ -293,8 +292,8 @@ EfiAcquireLockOrFail (
   IN EFI_LOCK  *Lock
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -353,8 +352,8 @@ EfiTestManagedDevice (
   IN CONST EFI_GUID    *ProtocolGuid
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -384,8 +383,8 @@ EfiTestChildHandle (
   IN CONST EFI_GUID    *ProtocolGuid
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -406,8 +405,8 @@ IsLanguageSupported (
   IN CONST CHAR8  *TargetLanguage
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -449,8 +448,8 @@ LookupUnicodeString (
   OUT CHAR16                         **UnicodeString
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -503,8 +502,8 @@ LookupUnicodeString2 (
   IN BOOLEAN                         Iso639Language
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -549,8 +548,8 @@ AddUnicodeString (
   IN     CONST CHAR16              *UnicodeString
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -605,8 +604,8 @@ AddUnicodeString2 (
   IN     BOOLEAN                   Iso639Language
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -627,8 +626,8 @@ FreeUnicodeStringTable (
   IN EFI_UNICODE_STRING_TABLE  *UnicodeStringTable
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -660,8 +659,8 @@ GetVariable2 (
   OUT UINTN          *Size OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -691,8 +690,8 @@ GetEfiGlobalVariable2 (
   OUT UINTN        *Size OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /** Return the attributes of the variable.
@@ -728,8 +727,8 @@ GetVariable3 (
   OUT UINT32         *Attr OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -781,8 +780,8 @@ GetBestLanguage (
   ...
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -811,8 +810,8 @@ CreatePopUp (
   ...
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (FALSE);
+  return;
 }
 
 /**
@@ -834,8 +833,8 @@ GetGlyphWidth (
   IN CHAR16  UnicodeChar
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -860,8 +859,8 @@ UnicodeStringDisplayLength (
   IN CONST CHAR16  *String
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 //
@@ -883,8 +882,8 @@ EfiSignalEventReadyToBoot (
   VOID
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (FALSE);
+  return;
 }
 
 /**
@@ -902,8 +901,8 @@ EfiSignalEventLegacyBoot (
   VOID
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (FALSE);
+  return;
 }
 
 /**
@@ -929,8 +928,8 @@ EfiCreateEventLegacyBoot (
   OUT EFI_EVENT  *LegacyBootEvent
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -961,8 +960,8 @@ EfiCreateEventLegacyBootEx (
   OUT EFI_EVENT         *LegacyBootEvent
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -988,8 +987,8 @@ EfiCreateEventReadyToBoot (
   OUT EFI_EVENT  *ReadyToBootEvent
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1020,8 +1019,8 @@ EfiCreateEventReadyToBootEx (
   OUT EFI_EVENT         *ReadyToBootEvent
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1047,8 +1046,8 @@ EfiInitializeFwVolDevicepathNode (
   IN CONST EFI_GUID                         *NameGuid
   )
 {
-    ASSERT (FALSE);
-    return;
+  ASSERT (FALSE);
+  return;
 }
 
 /**
@@ -1075,8 +1074,8 @@ EfiGetNameGuidFromFwVolDevicePathNode (
   IN CONST MEDIA_FW_VOL_FILEPATH_DEVICE_PATH  *FvDevicePathNode
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -1106,8 +1105,8 @@ Print (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1137,8 +1136,8 @@ ErrorPrint (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1167,8 +1166,8 @@ AsciiPrint (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1197,8 +1196,8 @@ AsciiErrorPrint (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1252,8 +1251,8 @@ PrintXY (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1306,8 +1305,8 @@ AsciiPrintXY (
   ...
   )
 {
-    ASSERT (FALSE);
-    return 0;
+  ASSERT (FALSE);
+  return 0;
 }
 
 /**
@@ -1341,8 +1340,8 @@ EfiLibInstallDriverBinding (
   IN EFI_HANDLE                   DriverBindingHandle
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1363,8 +1362,8 @@ EfiLibUninstallDriverBinding (
   IN EFI_DRIVER_BINDING_PROTOCOL  *DriverBinding
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1405,8 +1404,8 @@ EfiLibInstallAllDriverProtocols (
   IN CONST EFI_DRIVER_DIAGNOSTICS_PROTOCOL    *DriverDiagnostics    OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1434,8 +1433,8 @@ EfiLibUninstallAllDriverProtocols (
   IN CONST EFI_DRIVER_DIAGNOSTICS_PROTOCOL    *DriverDiagnostics    OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1472,8 +1471,8 @@ EfiLibInstallDriverBindingComponentName2 (
   IN CONST EFI_COMPONENT_NAME2_PROTOCOL  *ComponentName2       OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1498,8 +1497,8 @@ EfiLibUninstallDriverBindingComponentName2 (
   IN CONST EFI_COMPONENT_NAME2_PROTOCOL  *ComponentName2       OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1546,8 +1545,8 @@ EfiLibInstallAllDriverProtocols2 (
   IN CONST EFI_DRIVER_DIAGNOSTICS2_PROTOCOL    *DriverDiagnostics2    OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1582,8 +1581,8 @@ EfiLibUninstallAllDriverProtocols2 (
   IN CONST EFI_DRIVER_DIAGNOSTICS2_PROTOCOL    *DriverDiagnostics2    OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1615,8 +1614,8 @@ CatVSPrint (
   IN  VA_LIST       Marker
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -1650,8 +1649,8 @@ CatSPrint (
   ...
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -1685,8 +1684,8 @@ EfiLocateProtocolBuffer (
   OUT VOID      ***Buffer
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1762,8 +1761,8 @@ EfiOpenFileByDevicePath (
   IN     UINT64                    Attributes
   )
 {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
+  ASSERT (FALSE);
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -1808,8 +1807,8 @@ EfiLocateNextAcpiTable (
   IN EFI_ACPI_COMMON_HEADER  *PreviousTable OPTIONAL
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }
 
 /**
@@ -1835,6 +1834,6 @@ EfiLocateFirstAcpiTable (
   IN UINT32  Signature
   )
 {
-    ASSERT (FALSE);
-    return NULL;
+  ASSERT (FALSE);
+  return NULL;
 }

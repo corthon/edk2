@@ -17,12 +17,11 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "../Variable.h"
 #include "BlackBoxTest/VariableServicesBBTestMain.h"
 
-#define UNIT_TEST_NAME        "RuntimeVariableDxe Host-Based Unit Test"
-#define UNIT_TEST_VERSION     "1.0"
+#define UNIT_TEST_NAME     "RuntimeVariableDxe Host-Based Unit Test"
+#define UNIT_TEST_VERSION  "1.0"
 
-
-BOOLEAN   mTestAtRuntime = FALSE;
-EFI_TPL   mTestTpl = TPL_APPLICATION;
+BOOLEAN  mTestAtRuntime = FALSE;
+EFI_TPL  mTestTpl       = TPL_APPLICATION;
 
 //
 // Mock version of the UEFI Boot Services Table
@@ -153,10 +152,10 @@ MockRestoreTpl (
 EFI_STATUS
 EFIAPI
 MockFreePool (
-  VOID    *Pool
+  VOID  *Pool
   )
 {
-  FreePool(Pool);
+  FreePool (Pool);
   return EFI_SUCCESS;
 }
 
@@ -312,48 +311,52 @@ GetFvbCountAndBuffer (
 UNIT_TEST_STATUS
 EFIAPI
 DummyTest (
-  IN UNIT_TEST_CONTEXT           Context
+  IN UNIT_TEST_CONTEXT  Context
   )
 {
   UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
-  T_VAR     *VarA;
-  UINTN     DataSize;
-  UINT8     Data[10];
-  UINT32    Attributes;
+  T_VAR             *VarA;
+  UINTN             DataSize;
+  UINT8             Data[10];
+  UINT32            Attributes;
 
-  VarA = LoadTestVariable("TestVarA");
-  UT_CLEANUP_ASSERT_NOT_NULL(VarA);
+  VarA = LoadTestVariable ("TestVarA");
+  UT_CLEANUP_ASSERT_NOT_NULL (VarA);
 
-  UT_CLEANUP_ASSERT_NOT_EFI_ERROR(VariableServiceSetVariable(
-    VarA->Name,
-    &VarA->VendorGuid,
-    VarA->Attributes,
-    VarA->DataSize,
-    VarA->Data
-  ));
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    VariableServiceSetVariable (
+      VarA->Name,
+      &VarA->VendorGuid,
+      VarA->Attributes,
+      VarA->DataSize,
+      VarA->Data
+      )
+    );
 
-  DataSize = sizeof(Data);
-  UT_CLEANUP_ASSERT_NOT_EFI_ERROR(VariableServiceGetVariable(
-    VarA->Name,
-    &VarA->VendorGuid,
-    &Attributes,
-    &DataSize,
-    (VOID*)Data
-  ));
+  DataSize = sizeof (Data);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    VariableServiceGetVariable (
+      VarA->Name,
+      &VarA->VendorGuid,
+      &Attributes,
+      &DataSize,
+      (VOID *)Data
+      )
+    );
 
-  UT_CLEANUP_ASSERT_EQUAL(VarA->Attributes, Attributes);
-  UT_CLEANUP_ASSERT_EQUAL(VarA->DataSize, DataSize);
-  UT_CLEANUP_ASSERT_MEM_EQUAL(VarA->Data, Data, VarA->DataSize);
+  UT_CLEANUP_ASSERT_EQUAL (VarA->Attributes, Attributes);
+  UT_CLEANUP_ASSERT_EQUAL (VarA->DataSize, DataSize);
+  UT_CLEANUP_ASSERT_MEM_EQUAL (VarA->Data, Data, VarA->DataSize);
 
 Cleanup:
   if (VarA != NULL) {
-    FreeTestVariable(VarA);
+    FreeTestVariable (VarA);
   }
 
   return TestResult;
 }
 
-# define SCT_TEST_WRAPPER_FUNCTION(TestName)    \
+#define SCT_TEST_WRAPPER_FUNCTION(TestName)    \
   UNIT_TEST_STATUS                              \
   EFIAPI                                        \
   TestName##Wrapper (                           \
@@ -375,21 +378,20 @@ Cleanup:
     return Result;                              \
   }
 
-SCT_TEST_WRAPPER_FUNCTION(GetVariableConfTest)
-SCT_TEST_WRAPPER_FUNCTION(GetNextVariableNameConfTest)
-SCT_TEST_WRAPPER_FUNCTION(SetVariableConfTest)
-SCT_TEST_WRAPPER_FUNCTION(QueryVariableInfoConfTest)
-SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERConfTest)
-SCT_TEST_WRAPPER_FUNCTION(AuthVariableDERFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(GetVariableFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(GetNextVariableNameFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(SetVariableFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(QueryVariableInfoFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(HardwareErrorRecordConfTest)
-SCT_TEST_WRAPPER_FUNCTION(HardwareErrorRecordFuncTest)
-SCT_TEST_WRAPPER_FUNCTION(MultipleStressTest)
-SCT_TEST_WRAPPER_FUNCTION(OverflowStressTest)
-
+SCT_TEST_WRAPPER_FUNCTION (GetVariableConfTest)
+SCT_TEST_WRAPPER_FUNCTION (GetNextVariableNameConfTest)
+SCT_TEST_WRAPPER_FUNCTION (SetVariableConfTest)
+SCT_TEST_WRAPPER_FUNCTION (QueryVariableInfoConfTest)
+SCT_TEST_WRAPPER_FUNCTION (AuthVariableDERConfTest)
+SCT_TEST_WRAPPER_FUNCTION (AuthVariableDERFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (GetVariableFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (GetNextVariableNameFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (SetVariableFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (QueryVariableInfoFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (HardwareErrorRecordConfTest)
+SCT_TEST_WRAPPER_FUNCTION (HardwareErrorRecordFuncTest)
+SCT_TEST_WRAPPER_FUNCTION (MultipleStressTest)
+SCT_TEST_WRAPPER_FUNCTION (OverflowStressTest)
 
 /**
   Main fuction sets up the unit test environment
@@ -411,14 +413,14 @@ UefiTestMain (
 
   Framework = NULL;
 
-  DEBUG(( DEBUG_INFO, "%a v%a\n", UNIT_TEST_NAME, UNIT_TEST_VERSION ));
+  DEBUG ((DEBUG_INFO, "%a v%a\n", UNIT_TEST_NAME, UNIT_TEST_VERSION));
 
   //
   // Start setting up the test framework for running the tests.
   //
   Status = InitUnitTestFramework (&Framework, UNIT_TEST_NAME, gEfiCallerBaseName, UNIT_TEST_VERSION);
   if (EFI_ERROR (Status)) {
-    DEBUG((DEBUG_ERROR, "Failed in InitUnitTestFramework. Status = %r\n", Status));
+    DEBUG ((DEBUG_ERROR, "Failed in InitUnitTestFramework. Status = %r\n", Status));
     goto EXIT;
   }
 
@@ -431,6 +433,7 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (GenericTests, "Dummy Test", "Dummy", DummyTest, NULL, NULL, NULL);
 
   //
@@ -442,6 +445,7 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (SctConformanceTests, "GetVariableConf Test", "GetVariableConf", GetVariableConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctConformanceTests, "GetNextVariableNameConf Test", "GetNextVariableNameConf", GetNextVariableNameConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctConformanceTests, "SetVariableConf Test", "SetVariableConf", SetVariableConfTestWrapper, NULL, NULL, NULL);
@@ -456,6 +460,7 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (SctFunctionalTests, "GetVariableFunc Test", "GetVariableFunc", GetVariableFuncTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctFunctionalTests, "GetNextVariableNameFunc Test", "GetNextVariableNameFunc", GetNextVariableNameFuncTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctFunctionalTests, "SetVariableFunc Test", "SetVariableFunc", SetVariableFuncTestWrapper, NULL, NULL, NULL);
@@ -470,6 +475,7 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (SctAuthTests, "AuthVariableDERConf Test", "AuthVariableDERConf", AuthVariableDERConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctAuthTests, "AuthVariableDERFunc Test", "AuthVariableDERFunc", AuthVariableDERFuncTestWrapper, NULL, NULL, NULL);
 
@@ -482,6 +488,7 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (SctHwErrTests, "HardwareErrorRecordConf Test", "HardwareErrorRecordConf", HardwareErrorRecordConfTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctHwErrTests, "HardwareErrorRecordFunc Test", "HardwareErrorRecordFunc", HardwareErrorRecordFuncTestWrapper, NULL, NULL, NULL);
 
@@ -494,30 +501,30 @@ UefiTestMain (
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+
   AddTestCase (SctStressTests, "MultipleStress Test", "MultipleStress", MultipleStressTestWrapper, NULL, NULL, NULL);
   AddTestCase (SctStressTests, "OverflowStress Test", "OverflowStress", OverflowStressTestWrapper, NULL, NULL, NULL);
-
 
   // NOTE: This initialization should be performed per-suite, probably.
   //       But to do that optimally, I think we'd need to be able to deinit. Dunno.
   //       We'll play around with it.
-  ASSERT_EFI_ERROR (VariableCommonInitialize());
+  ASSERT_EFI_ERROR (VariableCommonInitialize ());
   MockRuntime.GetVariable         = VariableServiceGetVariable;
   MockRuntime.GetNextVariableName = VariableServiceGetNextVariableName;
   MockRuntime.SetVariable         = VariableServiceSetVariable;
   MockRuntime.QueryVariableInfo   = VariableServiceQueryVariableInfo;
 
-  MockBoot.RaiseTPL = MockRaiseTpl;
+  MockBoot.RaiseTPL   = MockRaiseTpl;
   MockBoot.RestoreTPL = MockRestoreTpl;
-  MockBoot.FreePool = MockFreePool;
+  MockBoot.FreePool   = MockFreePool;
 
-  ASSERT_EFI_ERROR (VariableWriteServiceInitialize());
-  RecordSecureBootPolicyVarData();
-  InitSctShim(&MockBoot, &MockRuntime);
-  
+  ASSERT_EFI_ERROR (VariableWriteServiceInitialize ());
+  RecordSecureBootPolicyVarData ();
+  InitSctShim (&MockBoot, &MockRuntime);
+
   Status = RunAllTestSuites (Framework);
 
-  EXIT:
+EXIT:
   if (Framework) {
     FreeUnitTestFramework (Framework);
   }
@@ -530,8 +537,8 @@ UefiTestMain (
 **/
 int
 main (
-  int argc,
-  char *argv[]
+  int   argc,
+  char  *argv[]
   )
 {
   return UefiTestMain ();

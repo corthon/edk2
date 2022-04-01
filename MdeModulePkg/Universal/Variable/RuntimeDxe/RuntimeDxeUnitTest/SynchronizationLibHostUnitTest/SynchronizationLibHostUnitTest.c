@@ -11,7 +11,6 @@
 #include <Library/DebugLib.h>
 #include <Library/SynchronizationLib.h>
 
-
 #define SPIN_LOCK_RELEASED  ((UINTN) 1)
 #define SPIN_LOCK_ACQUIRED  ((UINTN) 2)
 
@@ -252,6 +251,7 @@ InterlockedCompareExchange16 (
     *Value = ExchangeValue;
     return CompareValue;
   }
+
   return *Value;
 }
 
@@ -287,6 +287,7 @@ InterlockedCompareExchange32 (
     *Value = ExchangeValue;
     return CompareValue;
   }
+
   return *Value;
 }
 
@@ -321,6 +322,7 @@ InterlockedCompareExchange64 (
     *Value = ExchangeValue;
     return CompareValue;
   }
+
   return *Value;
 }
 

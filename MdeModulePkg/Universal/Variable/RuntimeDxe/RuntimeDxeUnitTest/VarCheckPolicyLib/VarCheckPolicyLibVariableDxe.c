@@ -13,7 +13,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Library/VariablePolicyLib.h>
 
-
 // ================================================
 // As a VarCheck library, we're linked into the VariableServices
 // and may not be able to call them indirectly. To get around this,

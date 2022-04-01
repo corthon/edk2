@@ -19,17 +19,17 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <StandardTestLibrary.h>
 #include <TestLoggingLibrary.h>
 
-#define EFI_BB_TEST_PROTOCOL  VOID
+#define EFI_BB_TEST_PROTOCOL                VOID
 #define EFI_TEST_RECOVERY_LIBRARY_PROTOCOL  VOID
-#define SctStrCmp       StrCmp
-#define SctStrnCmp      StrnCmp
-#define SctStrLen       StrLen
-#define SctStrCat       UnsafeStrCat
-#define SctStrnCpy      UnsafeStrnCpy
-#define gHwErrRecGuid   gEfiHardwareErrorVariableGuid
-#define gGlobalVariableGuid   gEfiGlobalVariableGuid
+#define SctStrCmp                           StrCmp
+#define SctStrnCmp                          StrnCmp
+#define SctStrLen                           StrLen
+#define SctStrCat                           UnsafeStrCat
+#define SctStrnCpy                          UnsafeStrnCpy
+#define gHwErrRecGuid                       gEfiHardwareErrorVariableGuid
+#define gGlobalVariableGuid                 gEfiGlobalVariableGuid
 
-#define EFI_MAX_PRINT_BUFFER    1024
+#define EFI_MAX_PRINT_BUFFER  1024
 
 #define SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE  SIGNATURE_32('H','T','P','D')
 typedef struct _SCT_HOST_TEST_PRIVATE_DATA SCT_HOST_TEST_PRIVATE_DATA;
@@ -42,7 +42,7 @@ typedef struct _SCT_HOST_TEST_PRIVATE_DATA SCT_HOST_TEST_PRIVATE_DATA;
 #define TEST_GENERIC_FAILURE_GUID         \
   { 0x6a8caa83, 0xb9da, 0x46c7, { 0x98, 0xf6, 0xd4, 0x96, 0x9d, 0xab, 0xda, 0xa0 }}
 
-extern EFI_GUID gTestGenericFailureGuid;
+extern EFI_GUID  gTestGenericFailureGuid;
 
 //
 // Dummy GUID is designed as a temporary GUID that will be replaced with a
@@ -52,16 +52,15 @@ extern EFI_GUID gTestGenericFailureGuid;
 #define TEST_DUMMY_GUID                   \
   { 0xece4bdd5, 0x8177, 0x448b, { 0x82, 0x03, 0x2d, 0x11, 0x0c, 0x1c, 0x20, 0xb8 }}
 
-extern EFI_GUID gTestDummyGuid;
+extern EFI_GUID  gTestDummyGuid;
 
 //
 // Global variables for the services tables
 //
 
-extern EFI_SYSTEM_TABLE          *gtST;
-extern EFI_BOOT_SERVICES         *gtBS;
-extern EFI_RUNTIME_SERVICES      *gtRT;
-
+extern EFI_SYSTEM_TABLE      *gtST;
+extern EFI_BOOT_SERVICES     *gtBS;
+extern EFI_RUNTIME_SERVICES  *gtRT;
 
 /**
   [ATTENTION] This function is deprecated for security reason.
@@ -98,9 +97,9 @@ extern EFI_RUNTIME_SERVICES      *gtRT;
 CHAR16 *
 EFIAPI
 UnsafeStrnCpy (
-  OUT     CHAR16                    *Destination,
-  IN      CONST CHAR16              *Source,
-  IN      UINTN                     Length
+  OUT     CHAR16        *Destination,
+  IN      CONST CHAR16  *Source,
+  IN      UINTN         Length
   );
 
 /**
@@ -140,43 +139,43 @@ UnsafeStrnCpy (
 CHAR16 *
 EFIAPI
 UnsafeStrCat (
-  IN OUT  CHAR16                    *Destination,
-  IN      CONST CHAR16              *Source
+  IN OUT  CHAR16        *Destination,
+  IN      CONST CHAR16  *Source
   );
 
 INTN
-SctCompareGuid(
-  IN EFI_GUID     *Guid1,
-  IN EFI_GUID     *Guid2
+SctCompareGuid (
+  IN EFI_GUID  *Guid1,
+  IN EFI_GUID  *Guid2
   );
 
 UINTN
 SctXtoi (
-  CHAR16                            *str
+  CHAR16  *str
   );
 
-CHAR16*
+CHAR16 *
 SctPoolPrint (
-  IN CONST CHAR16     *Fmt,
+  IN CONST CHAR16  *Fmt,
   ...
   );
 
 VOID
 InitSctShim (
-  IN EFI_BOOT_SERVICES    *BS,
-  IN EFI_RUNTIME_SERVICES *RT
+  IN EFI_BOOT_SERVICES     *BS,
+  IN EFI_RUNTIME_SERVICES  *RT
   );
 
 EFI_STATUS
 InitSctPrivateData (
-  IN OUT UNIT_TEST_STATUS             *TestResult,
-  OUT    SCT_HOST_TEST_PRIVATE_DATA   *PrivateData
+  IN OUT UNIT_TEST_STATUS            *TestResult,
+  OUT    SCT_HOST_TEST_PRIVATE_DATA  *PrivateData
   );
 
 struct _SCT_HOST_TEST_PRIVATE_DATA {
-  UINT32                              Signature;
-  EFI_STANDARD_TEST_LIBRARY_PROTOCOL  StandardTest;
-  UNIT_TEST_STATUS                    *ReturnStatus;
+  UINT32                                Signature;
+  EFI_STANDARD_TEST_LIBRARY_PROTOCOL    StandardTest;
+  UNIT_TEST_STATUS                      *ReturnStatus;
 };
 
 #define SCT_HOST_TEST_PRIVATE_DATA_FROM_STSL(a) \
