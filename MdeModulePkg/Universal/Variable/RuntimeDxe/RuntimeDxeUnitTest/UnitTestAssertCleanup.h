@@ -6,8 +6,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
 
-#ifndef _UNIT_TEST_ASSERT_CLEANUP_H_
-#define _UNIT_TEST_ASSERT_CLEANUP_H_
+#ifndef UNIT_TEST_ASSERT_CLEANUP_H_
+#define UNIT_TEST_ASSERT_CLEANUP_H_
 
 #include <Library/UnitTestLib.h>
 
@@ -59,4 +59,4 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
     goto Cleanup;                                                                               \
   }
 
-#endif // _UNIT_TEST_ASSERT_CLEANUP_H_
+#endif // UNIT_TEST_ASSERT_CLEANUP_H_

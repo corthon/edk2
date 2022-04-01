@@ -7,8 +7,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
 
-#ifndef _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
-#define _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
+#ifndef VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
+#define VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
 
 #include <Uefi.h>
 #include <Uefi/UefiMultiPhase.h>
@@ -62,4 +62,4 @@ FreeTestVariable (
   IN OUT      TEST_VARIABLE_MODEL  *VarModel
   );
 
-#endif // _VARIABLE_RUNTIME_DXE_UNIT_TEST_H_
+#endif // VARIABLE_RUNTIME_DXE_UNIT_TEST_H_

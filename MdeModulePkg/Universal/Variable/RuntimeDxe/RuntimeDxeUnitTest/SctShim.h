@@ -7,8 +7,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
 
-#ifndef _SCT_SHIM_H_
-#define _SCT_SHIM_H_
+#ifndef SCT_SHIM_H_
+#define SCT_SHIM_H_
 
 #include <Uefi.h>
 #include <Library/BaseLib.h>
@@ -181,4 +181,4 @@ struct _SCT_HOST_TEST_PRIVATE_DATA {
 #define SCT_HOST_TEST_PRIVATE_DATA_FROM_STSL(a) \
   CR(a, SCT_HOST_TEST_PRIVATE_DATA, StandardTest, SCT_HOST_TEST_PRIVATE_DATA_SIGNATURE)
 
-#endif // _SCT_SHIM_H_
+#endif // SCT_SHIM_H_
