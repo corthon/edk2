@@ -5,12 +5,12 @@
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
-  which accompanies this distribution.  The full text of the license may be found at 
+  which accompanies this distribution.  The full text of the license may be found at
   http://opensource.org/licenses/bsd-license.php
- 
+
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
- 
+
 **/
 /*++
 
@@ -28,8 +28,8 @@ Abstract:
 #include <Uefi.h>
 #include "Guid.h"
 
-#define EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS   0x00000020
-#define EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS              0x00000010
-#define EFI_VARIABLE_APPEND_WRITE                            0x00000040
+#define EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS  0x00000020
+#define EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS             0x00000010
+#define EFI_VARIABLE_APPEND_WRITE                           0x00000040
 
 #endif
