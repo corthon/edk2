@@ -24,6 +24,9 @@
 
 [Components]
   MdeModulePkg/Library/DxeResetSystemLib/UnitTest/MockUefiRuntimeServicesTableLib.inf
+  MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/MockUefiLib/MockUefiLib.inf
+  MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/RngLibHostTestLfsr/RngLibHostTestLfsr.inf
+  MdeModulePkg/Universal/Variable/RuntimeDxe/RuntimeDxeUnitTest/SynchronizationLibHostUnitTest/SynchronizationLibHostUnitTest.inf
 
   #
   # Build MdeModulePkg HOST_APPLICATION Tests
