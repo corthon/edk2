@@ -22,7 +22,6 @@ Abstract:
 
 --*/
 
-#include "SctLib.h"
 #include "VariableServicesBBTestMain.h"
 #include "AuthVariableServicesBBTest.h"
 
@@ -241,7 +240,8 @@ AuthVariableDERConfTest (
                    sizeof (mValidAuthVarDERCreate),
                    (VOID *) mValidAuthVarDERCreate
                    );
-    if (Status == EFI_UNSUPPORTED) {
+    if (Status == EFI_UNSUPPORTED ||
+        (Attr == (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS|EFI_VARIABLE_NON_VOLATILE) && Status == EFI_INVALID_PARAMETER)) {
       Result = EFI_TEST_ASSERTION_PASSED;
     } else {
       Result = EFI_TEST_ASSERTION_FAILED;
@@ -266,7 +266,8 @@ AuthVariableDERConfTest (
                    sizeof (mInvalidAuthVarDERCreate),
                    (VOID *) mInvalidAuthVarDERCreate
                    );
-    if (Status == EFI_UNSUPPORTED) {
+    if (Status == EFI_UNSUPPORTED ||
+        (Attr == (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS|EFI_VARIABLE_NON_VOLATILE) && Status == EFI_INVALID_PARAMETER)) {
       Result = EFI_TEST_ASSERTION_PASSED;
     } else {
       Result = EFI_TEST_ASSERTION_FAILED;
