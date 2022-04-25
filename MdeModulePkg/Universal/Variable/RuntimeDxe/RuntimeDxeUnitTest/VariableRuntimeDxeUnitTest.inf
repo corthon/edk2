@@ -61,6 +61,7 @@
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
+  CryptoPkg/CryptoPkg.dec
 
 
 [LibraryClasses]
@@ -127,6 +128,8 @@
   ## SOMETIMES_CONSUMES   ## Variable:L"dbx"
   ## SOMETIMES_CONSUMES   ## Variable:L"dbt"
   gEfiImageSecurityDatabaseGuid
+
+  gEfiCertPkcs7Guid
 
 
 [Pcd]

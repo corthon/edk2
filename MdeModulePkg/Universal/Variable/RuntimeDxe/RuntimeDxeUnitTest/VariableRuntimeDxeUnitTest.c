@@ -10,7 +10,10 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "VariableRuntimeDxeUnitTest.h"
 #include <Library/UnitTestLib.h>
 #include <Library/DebugLib.h>
+#include <Library/BaseLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/VariablePolicyLib.h>
 
 #include "UnitTestAssertCleanup.h"
 
@@ -319,49 +322,555 @@ GetFvbCountAndBuffer (
   return EFI_UNSUPPORTED;
 }
 
+VOID
+EFIAPI
+ResetVarPolicyEngine (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  DeinitVariablePolicyLib ();
+  InitVariablePolicyLib (VariableServiceGetVariable);
+}
+
 UNIT_TEST_STATUS
 EFIAPI
-DummyTest (
+VarPolBaselineTest (
   IN UNIT_TEST_CONTEXT  Context
   )
 {
   UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
   T_VAR             *VarA;
-  UINTN             DataSize;
-  UINT8             Data[10];
-  UINT32            Attributes;
+  UINT8             *Payload;
+  UINT32            PayloadSize;
+
+  UINT32  Attributes;
+  UINT8   TestData[0x100];
+  UINTN   TestDataSize;
+
+  Payload     = NULL;
+  PayloadSize = 0;
 
   VarA = LoadTestVariable ("TestVarA");
   UT_CLEANUP_ASSERT_NOT_NULL (VarA);
 
+  VarA->Timestamp.Year  = 2022;
+  VarA->Timestamp.Month = 4;
+  VarA->Timestamp.Day   = 20;
+  VarA->VarType         = VAR_TYPE_TIME_AUTH;
+  VarA->Attributes      = VARIABLE_ATTRIBUTE_NV_BS_RT_AT;
+
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+
   UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
-    VariableServiceSetVariable (
-      VarA->Name,
-      &VarA->VendorGuid,
-      VarA->Attributes,
-      VarA->DataSize,
-      VarA->Data
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  //
+  // Make sure that the data can be read.
+  //
+  TestDataSize = sizeof (TestData);
+  ZeroMem (TestData, TestDataSize);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_CLEANUP_ASSERT_EQUAL (Attributes, VarA->Attributes);
+  UT_CLEANUP_ASSERT_EQUAL (TestDataSize, VarA->DataSize);
+  UT_CLEANUP_ASSERT_MEM_EQUAL (TestData, VarA->Data, TestDataSize);
+
+  //
+  // Make sure that the data can be updated.
+  //
+  VarA->Timestamp.Hour = 1;
+  UpdateVariableData (VarA, "FEEDF00D", DATA_ENC_HEX);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  TestDataSize = sizeof (TestData);
+  ZeroMem (TestData, TestDataSize);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_CLEANUP_ASSERT_EQUAL (Attributes, VarA->Attributes);
+  UT_CLEANUP_ASSERT_EQUAL (TestDataSize, VarA->DataSize);
+  UT_CLEANUP_ASSERT_MEM_EQUAL (TestData, VarA->Data, TestDataSize);
+
+  //
+  // Make sure that an older timestamp fails.
+  //
+  VarA->Timestamp.Hour = 0;
+  UpdateVariableData (VarA, "CHOMP-ION!", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             PayloadSize,
+             Payload
+             )
       )
     );
 
-  DataSize = sizeof (Data);
-  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
-    VariableServiceGetVariable (
-      VarA->Name,
-      &VarA->VendorGuid,
-      &Attributes,
-      &DataSize,
-      (VOID *)Data
+  //
+  // Make sure that the wrong cert fails.
+  //
+  VarA->Timestamp.Hour = 2;
+  UpdateVariableData (VarA, "Surfer Rosa", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_2, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             PayloadSize,
+             Payload
+             )
       )
     );
 
-  UT_CLEANUP_ASSERT_EQUAL (VarA->Attributes, Attributes);
-  UT_CLEANUP_ASSERT_EQUAL (VarA->DataSize, DataSize);
-  UT_CLEANUP_ASSERT_MEM_EQUAL (VarA->Data, Data, VarA->DataSize);
+  //
+  // Make sure that the variable can be deleted.
+  //
+  FreePool (VarA->Data);
+  VarA->Data     = NULL;
+  VarA->DataSize = 0;
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_STATUS_EQUAL (
+    EFI_NOT_FOUND,
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
 
 Cleanup:
   if (VarA != NULL) {
     FreeTestVariable (VarA);
+  }
+
+  if (Payload != NULL) {
+    FreePool (Payload);
+  }
+
+  return TestResult;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+ShouldBeAbleToDeleteAuthVarsWhenVarPolDisabled (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
+  T_VAR             *VarA;
+  UINT8             *Payload;
+  UINT32            PayloadSize;
+
+  UINT32  Attributes;
+  UINT8   TestData[0x100];
+  UINTN   TestDataSize;
+
+  Payload     = NULL;
+  PayloadSize = 0;
+
+  VarA = LoadTestVariable ("TestVarA");
+  UT_CLEANUP_ASSERT_NOT_NULL (VarA);
+
+  VarA->Timestamp.Year  = 2022;
+  VarA->Timestamp.Month = 4;
+  VarA->Timestamp.Day   = 20;
+  VarA->VarType         = VAR_TYPE_TIME_AUTH;
+  VarA->Attributes      = VARIABLE_ATTRIBUTE_NV_BS_RT_AT;
+
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  //
+  // Make sure that variable cannot be deleted.
+  //
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             0,
+             NULL
+             )
+      )
+    );
+
+  //
+  // Disable the VariablePolicy engine.
+  //
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (DisableVariablePolicy ());
+
+  //
+  // Make sure we can now delete the variable.
+  //
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           0,
+           NULL
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_STATUS_EQUAL (
+    EFI_NOT_FOUND,
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+
+Cleanup:
+  if (VarA != NULL) {
+    FreeTestVariable (VarA);
+  }
+
+  if (Payload != NULL) {
+    FreePool (Payload);
+  }
+
+  return TestResult;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+ShouldBeAbleToUseOldTimestampsWhenVarPolDisabled (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
+  T_VAR             *VarA;
+  UINT8             *Payload;
+  UINT32            PayloadSize;
+
+  UINT32  Attributes;
+  UINT8   TestData[0x100];
+  UINTN   TestDataSize;
+
+  Payload     = NULL;
+  PayloadSize = 0;
+
+  VarA = LoadTestVariable ("TestVarA");
+  UT_CLEANUP_ASSERT_NOT_NULL (VarA);
+
+  VarA->Timestamp.Year  = 2022;
+  VarA->Timestamp.Month = 4;
+  VarA->Timestamp.Day   = 20;
+  VarA->VarType         = VAR_TYPE_TIME_AUTH;
+  VarA->Attributes      = VARIABLE_ATTRIBUTE_NV_BS_RT_AT;
+
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  //
+  // Disable the VariablePolicy engine.
+  //
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (DisableVariablePolicy ());
+
+  //
+  // Make sure we can now use an older timestamp.
+  //
+  VarA->Timestamp.Day = 10;
+  UpdateVariableData (VarA, "TestUpdate1", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_ASSERT_MEM_EQUAL (VarA->Data, TestData, VarA->DataSize);
+
+  //
+  // Reset the engine to re-enable VarPol.
+  //
+  ResetVarPolicyEngine (NULL);
+
+  //
+  // Verify that we cannot use just ANY timestamp.
+  //
+  VarA->Timestamp.Day = 5;
+  UpdateVariableData (VarA, "TestUpdate2", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             PayloadSize,
+             Payload
+             )
+      )
+    );
+
+  //
+  // But a timestamp between the old old and the new old works.
+  //
+  VarA->Timestamp.Day = 15;
+  UpdateVariableData (VarA, "FINAL COUNTDOWN", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_ASSERT_MEM_EQUAL (VarA->Data, TestData, VarA->DataSize);
+
+Cleanup:
+  if (VarA != NULL) {
+    FreeTestVariable (VarA);
+  }
+
+  if (Payload != NULL) {
+    FreePool (Payload);
+  }
+
+  return TestResult;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
+ShouldBeAbleToUseOtherCertsWhenVarPolDisabled (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
+  T_VAR             *VarA;
+  UINT8             *Payload;
+  UINT32            PayloadSize;
+
+  UINT32  Attributes;
+  UINT8   TestData[0x100];
+  UINTN   TestDataSize;
+
+  Payload     = NULL;
+  PayloadSize = 0;
+
+  VarA = LoadTestVariable ("TestVarA");
+  UT_CLEANUP_ASSERT_NOT_NULL (VarA);
+
+  VarA->Timestamp.Year  = 2022;
+  VarA->Timestamp.Month = 4;
+  VarA->Timestamp.Day   = 20;
+  VarA->VarType         = VAR_TYPE_TIME_AUTH;
+  VarA->Attributes      = VARIABLE_ATTRIBUTE_NV_BS_RT_AT;
+
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (DisableVariablePolicy ());
+
+  //
+  // Make sure that an alternate signer may now be used
+  //
+  VarA->Timestamp.Day = 25;
+  UpdateVariableData (VarA, "Trading Places", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_2, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_ASSERT_MEM_EQUAL (VarA->Data, TestData, VarA->DataSize);
+
+  //
+  // Reset the engine to re-enable VarPol.
+  //
+  ResetVarPolicyEngine (NULL);
+
+  //
+  // Verify that the original signer now fails
+  //
+  VarA->Timestamp.Day = 26;
+  UpdateVariableData (VarA, "TestUpdate1", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             PayloadSize,
+             Payload
+             )
+      )
+    );
+
+  //
+  // And that the new signer works
+  //
+  VarA->Timestamp.Day = 27;
+  UpdateVariableData (VarA, "Maximize Your Return", DATA_ENC_CHAR8);
+  FreePool (Payload);
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_2, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_ASSERT_MEM_EQUAL (VarA->Data, TestData, VarA->DataSize);
+
+Cleanup:
+  if (VarA != NULL) {
+    FreeTestVariable (VarA);
+  }
+
+  if (Payload != NULL) {
+    FreePool (Payload);
   }
 
   return TestResult;
@@ -456,7 +965,7 @@ UefiTestMain (
 {
   EFI_STATUS                  Status;
   UNIT_TEST_FRAMEWORK_HANDLE  Framework;
-  UNIT_TEST_SUITE_HANDLE      GenericTests;
+  UNIT_TEST_SUITE_HANDLE      VarPolicyAuthVarTests;
   UNIT_TEST_SUITE_HANDLE      SctConformanceTests;
   UNIT_TEST_SUITE_HANDLE      SctFunctionalTests;
   UNIT_TEST_SUITE_HANDLE      SctAuthTests;
@@ -477,16 +986,46 @@ UefiTestMain (
   }
 
   //
-  // Populate the StatusCodeHspDriver Unit Test Suite.
+  // Populate the VarPolicyAuthVarTests Test Suite
+  // These tests will verify the behavior of AuthVars with and without VarPolicy enabled.
+  // TODO: Make these tests set up and tear down VarPol.
+  // TODO: Make this suite reset VarPol to a known configuration when cleaning up.
   //
-  Status = CreateUnitTestSuite (&GenericTests, Framework, "Generic Tests", "Generic", NULL, NULL);
+  Status = CreateUnitTestSuite (&VarPolicyAuthVarTests, Framework, "Auth Var and Var Policy Tests", "VarPolAuth", NULL, NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for GenericTests\n"));
+    DEBUG ((DEBUG_ERROR, "Failed in CreateUnitTestSuite for VarPolicyAuthVarTests\n"));
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
 
-  AddTestCase (GenericTests, "Dummy Test", "Dummy", DummyTest, NULL, NULL, NULL);
+  AddTestCase (VarPolicyAuthVarTests, "Baseline Behavior Test", "Baseline", VarPolBaselineTest, NULL, ResetVarPolicyEngine, NULL);
+  AddTestCase (
+    VarPolicyAuthVarTests,
+    "Disabling Variable Policy should enable Authenticated Variables to be deleted",
+    "AuthVarDelete",
+    ShouldBeAbleToDeleteAuthVarsWhenVarPolDisabled,
+    NULL,
+    ResetVarPolicyEngine,
+    NULL
+    );
+  AddTestCase (
+    VarPolicyAuthVarTests,
+    "Disabling Variable Policy should enable older payloads to be used",
+    "AuthVarOldTimestamp",
+    ShouldBeAbleToUseOldTimestampsWhenVarPolDisabled,
+    NULL,
+    ResetVarPolicyEngine,
+    NULL
+    );
+  AddTestCase (
+    VarPolicyAuthVarTests,
+    "Disabling Variable Policy should enable other signers on payloads",
+    "AuthVarDiffCert",
+    ShouldBeAbleToUseOtherCertsWhenVarPolDisabled,
+    NULL,
+    ResetVarPolicyEngine,
+    NULL
+    );
 
   //
   // Populate the SCT Conformance TDS 3.1-3.4 Unit Test Suite
