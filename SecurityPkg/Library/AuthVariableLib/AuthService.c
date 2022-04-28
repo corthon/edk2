@@ -1892,12 +1892,14 @@ VerifyTimeBasedPayload (
     return EFI_SECURITY_VIOLATION;
   }
 
-  if ((OrgTimeStamp != NULL) && ((Attributes & EFI_VARIABLE_APPEND_WRITE) == 0)) {
-    if (AuthServiceInternalCompareTimeStamp (&CertData->TimeStamp, OrgTimeStamp)) {
-      //
-      // TimeStamp check fail, suspicious replay attack, return EFI_SECURITY_VIOLATION.
-      //
-      return EFI_SECURITY_VIOLATION;
+  if (IsVariablePolicyEnabled ()) {
+    if ((OrgTimeStamp != NULL) && ((Attributes & EFI_VARIABLE_APPEND_WRITE) == 0)) {
+      if (AuthServiceInternalCompareTimeStamp (&CertData->TimeStamp, OrgTimeStamp)) {
+        //
+        // TimeStamp check fail, suspicious replay attack, return EFI_SECURITY_VIOLATION.
+        //
+        return EFI_SECURITY_VIOLATION;
+      }
     }
   }
 
