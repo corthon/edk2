@@ -1834,6 +1834,7 @@ VerifyTimeBasedPayload (
   UINTN                          PayloadSize;
   UINT32                         Attr;
   BOOLEAN                        VerifyStatus;
+  BOOLEAN                        CertMismatch;
   EFI_STATUS                     Status;
   EFI_SIGNATURE_LIST             *CertList;
   EFI_SIGNATURE_DATA             *Cert;
@@ -1861,6 +1862,7 @@ VerifyTimeBasedPayload (
   //     storage or PK payload on PK init
   //
   VerifyStatus  = FALSE;
+  CertMismatch  = FALSE;
   CertData      = NULL;
   NewData       = NULL;
   Attr          = Attributes;
@@ -2145,8 +2147,11 @@ VerifyTimeBasedPayload (
                         TopLevelCertSize,
                         Sha256Digest
                         );
-        if (EFI_ERROR (Status) || (CompareMem (Sha256Digest, CertsInCertDb, CertsSizeinDb) != 0)) {
+        if (EFI_ERROR (Status)) {
           goto Exit;
+        }
+        if (CompareMem (Sha256Digest, CertsInCertDb, CertsSizeinDb) != 0) {
+          CertMismatch = TRUE;
         }
       } else {
         //
@@ -2155,8 +2160,13 @@ VerifyTimeBasedPayload (
         if ((CertStackSize != CertsSizeinDb) ||
             (CompareMem (SignerCerts, CertsInCertDb, CertsSizeinDb) != 0))
         {
-          goto Exit;
+          CertMismatch = TRUE;
         }
+      }
+
+      // Check to see whether we should Exit early.
+      if (CertMismatch && IsVariablePolicyEnabled ()) {
+        goto Exit;
       }
     }
 
@@ -2172,7 +2182,18 @@ VerifyTimeBasedPayload (
       goto Exit;
     }
 
-    if ((OrgTimeStamp == NULL) && (PayloadSize != 0)) {
+    if (((OrgTimeStamp == NULL) || CertMismatch) && (PayloadSize != 0)) {
+      //
+      // If there was a cert mismatch, first delete the old cert.
+      //
+      if (CertMismatch) {
+        Status = DeleteCertsFromDb (VariableName, VendorGuid, Attributes);
+        if (EFI_ERROR (Status)) {
+          VerifyStatus = FALSE;
+          goto Exit;
+        }
+      }
+
       //
       // When adding a new common authenticated variable, always save Hash of cn of signer cert + tbsCertificate of Top-level issuer
       //
