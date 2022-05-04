@@ -15,6 +15,9 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Guid/VariableFormat.h>
 #include <Guid/GlobalVariable.h>
 
+#define SKIP_SIGDATA        FALSE
+#define INCLUDE_SIGDATA     TRUE
+
 #define VAR_TYPE_STANDARD   0x00
 #define VAR_TYPE_TIME_AUTH  0x01
 
@@ -65,6 +68,7 @@ SignAuthVar (
 UINT8 *
 AssembleAuthPayload (
   IN CONST TEST_VARIABLE_MODEL  *Model,
+  IN       BOOLEAN              IncludeSig,
   OUT      UINT32               *BufferSize
   );
 

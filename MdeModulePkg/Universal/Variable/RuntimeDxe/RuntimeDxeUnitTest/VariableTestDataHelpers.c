@@ -169,7 +169,7 @@ GetAuthVarTbsBuffer (
 
 STATIC
 BOOLEAN
-ShouldHaveSigData (
+IsAuthVar (
   IN CONST TEST_VARIABLE_MODEL  *Model
   )
 {
@@ -191,7 +191,7 @@ SignAuthVar (
   UINTN   SigDataSize;
 
   ASSERT (Model != NULL);
-  ASSERT (ShouldHaveSigData (Model));
+  ASSERT (IsAuthVar (Model));
 
   TbsBuffer     = NULL;
   TbsBufferSize = 0;
@@ -246,6 +246,7 @@ SignAuthVar (
 UINT8 *
 AssembleAuthPayload (
   IN CONST TEST_VARIABLE_MODEL  *Model,
+  IN       BOOLEAN              IncludeSig,
   OUT      UINT32               *BufferSize
   )
 {
@@ -256,8 +257,11 @@ AssembleAuthPayload (
 
   ASSERT (Model != NULL);
   ASSERT (BufferSize != NULL);
-  ASSERT (ShouldHaveSigData (Model));
-  ASSERT (Model->SigData != NULL);
+  ASSERT (IsAuthVar (Model));
+  if (IncludeSig) {
+    ASSERT (Model->SigDataSize > 0);
+    ASSERT (Model->SigData != NULL);
+  }
 
   Result      = NULL;
   Mark        = NULL;
@@ -279,7 +283,9 @@ AssembleAuthPayload (
   AuthData->AuthInfo.Hdr.wCertificateType = WIN_CERT_TYPE_EFI_GUID;
 
   CopyGuid (&AuthData->AuthInfo.CertType, &gEfiCertPkcs7Guid);
-  CopyMem (&AuthData->AuthInfo.CertData[0], Model->SigData, Model->SigDataSize);
+  if (IncludeSig) {
+    CopyMem (&AuthData->AuthInfo.CertData[0], Model->SigData, Model->SigDataSize);
+  }
 
   Mark = Result + OFFSET_OF (EFI_VARIABLE_AUTHENTICATION_2, AuthInfo) +
          AuthData->AuthInfo.Hdr.dwLength;
@@ -296,7 +302,7 @@ SignAndAssembleAuthPayload (
   )
 {
   ASSERT (SignAuthVar (Model, SignerId));
-  return AssembleAuthPayload (Model, BufferSize);
+  return AssembleAuthPayload (Model, INCLUDE_SIGDATA, BufferSize);
 }
 
 TEST_VARIABLE_MODEL *
@@ -348,7 +354,7 @@ LoadTestVariable (
     }
 
     if ((NewModel->Data == NULL) ||
-        (ShouldHaveSigData (NewModel) && (NewModel->SigData == NULL)))
+        (IsAuthVar (NewModel) && (NewModel->SigData == NULL)))
     {
       FreeTestVariable (NewModel);
       NewModel = NULL;

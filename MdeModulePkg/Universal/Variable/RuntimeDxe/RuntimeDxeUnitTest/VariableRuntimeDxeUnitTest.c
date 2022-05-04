@@ -603,6 +603,110 @@ Cleanup:
 
 UNIT_TEST_STATUS
 EFIAPI
+ShouldBeAbleToUpdateAuthVarsWhenVarPolDisabled (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  UNIT_TEST_STATUS  TestResult = UNIT_TEST_PASSED;
+  T_VAR             *VarA;
+  UINT8             *Payload;
+  UINT32            PayloadSize;
+
+  UINT32  Attributes;
+  UINT8   TestData[0x100];
+  UINTN   TestDataSize;
+
+  Payload     = NULL;
+  PayloadSize = 0;
+
+  VarA = LoadTestVariable ("TestVarA");
+  UT_CLEANUP_ASSERT_NOT_NULL (VarA);
+
+  VarA->Timestamp.Year  = 2021;
+  VarA->Timestamp.Month = 4;
+  VarA->Timestamp.Day   = 20;
+  VarA->VarType         = VAR_TYPE_TIME_AUTH;
+  VarA->Attributes      = VARIABLE_ATTRIBUTE_NV_BS_RT_AT;
+
+  Payload = SignAndAssembleAuthPayload (VarA, TEST_SIGNER_1, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  //
+  // Make sure that variable cannot be deleted.
+  //
+  UT_CLEANUP_ASSERT_TRUE (
+    EFI_ERROR (
+      gRT->SetVariable (
+             VarA->Name,
+             &VarA->VendorGuid,
+             VarA->Attributes,
+             0,
+             NULL
+             )
+      )
+    );
+
+  //
+  // Disable the VariablePolicy engine.
+  //
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (DisableVariablePolicy ());
+
+  //
+  // Make sure we can now update the variable.
+  //
+  UpdateVariableData (VarA, "Mo Different Data", DATA_ENC_CHAR8);
+  FreePool (VarA->SigData);
+  VarA->SigData     = NULL;
+  VarA->SigDataSize = 0;
+  FreePool (Payload);
+  Payload = AssembleAuthPayload (VarA, SKIP_SIGDATA, &PayloadSize);
+  UT_CLEANUP_ASSERT_NOT_NULL (Payload);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->SetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           VarA->Attributes,
+           PayloadSize,
+           Payload
+           )
+    );
+
+  TestDataSize = sizeof (TestData);
+  UT_CLEANUP_ASSERT_NOT_EFI_ERROR (
+    gRT->GetVariable (
+           VarA->Name,
+           &VarA->VendorGuid,
+           &Attributes,
+           &TestDataSize,
+           TestData
+           )
+    );
+  UT_ASSERT_MEM_EQUAL (VarA->Data, TestData, VarA->DataSize);
+
+Cleanup:
+  if (VarA != NULL) {
+    FreeTestVariable (VarA);
+  }
+
+  if (Payload != NULL) {
+    FreePool (Payload);
+  }
+
+  return TestResult;
+}
+
+UNIT_TEST_STATUS
+EFIAPI
 ShouldBeAbleToUseOldTimestampsWhenVarPolDisabled (
   IN UNIT_TEST_CONTEXT  Context
   )
@@ -1004,6 +1108,15 @@ UefiTestMain (
     "Disabling Variable Policy should enable Authenticated Variables to be deleted",
     "AuthVarDelete",
     ShouldBeAbleToDeleteAuthVarsWhenVarPolDisabled,
+    NULL,
+    ResetVarPolicyEngine,
+    NULL
+    );
+  AddTestCase (
+    VarPolicyAuthVarTests,
+    "Disabling Variable Policy should enable Authenticated Variables to be updated without signing",
+    "AuthVarUpdate",
+    ShouldBeAbleToUpdateAuthVarsWhenVarPolDisabled,
     NULL,
     ResetVarPolicyEngine,
     NULL
