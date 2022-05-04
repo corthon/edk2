@@ -1955,10 +1955,21 @@ VerifyTimeBasedPayload (
   PayloadPtr  = SigData + SigDataSize;
   PayloadSize = DataSize - OFFSET_OF_AUTHINFO2_CERT_DATA - (UINTN)SigDataSize;
 
-  // If the VariablePolicy engine is disabled, allow deletion of any authenticated variables.
-  if ((PayloadSize == 0) && ((Attributes & EFI_VARIABLE_APPEND_WRITE) == 0) && !IsVariablePolicyEnabled ()) {
-    VerifyStatus = TRUE;
-    goto Exit;
+  // If the VariablePolicy engine is disabled, allow certain operations.
+  if (!IsVariablePolicyEnabled ()) {
+    // Allow delete.
+    if ((PayloadSize == 0) && ((Attributes & EFI_VARIABLE_APPEND_WRITE) == 0)) {
+      VerifyStatus = TRUE;
+      goto Exit;
+    }
+    // Allow update without signed data.
+    if (SigDataSize == 0) {
+      VerifyStatus = TRUE;
+      goto Exit;
+    }
+    // Otherwise continue...
+    // This is so that the timestamp and/or cert can be updated
+    // according to the VariablePolicy whitepaper.
   }
 
   //
