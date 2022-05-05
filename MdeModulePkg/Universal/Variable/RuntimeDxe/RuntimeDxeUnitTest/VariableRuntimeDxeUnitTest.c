@@ -328,8 +328,28 @@ ResetVarPolicyEngine (
   IN UNIT_TEST_CONTEXT  Context
   )
 {
-  DeinitVariablePolicyLib ();
-  InitVariablePolicyLib (VariableServiceGetVariable);
+  ASSERT_EFI_ERROR (DeinitVariablePolicyLib ());
+  ASSERT_EFI_ERROR (InitVariablePolicyLib (VariableServiceGetVariable));
+}
+
+VOID
+EFIAPI
+ResetEmuNvVarStore (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  ASSERT (PcdGetBool (PcdEmuVariableNvModeEnable));
+  // TODO: Reset the entire Variable Services state.
+}
+
+VOID
+EFIAPI
+ResetVarStoreAndVarPol (
+  IN UNIT_TEST_CONTEXT  Context
+  )
+{
+  ResetEmuNvVarStore (Context);
+  ResetVarPolicyEngine (Context);
 }
 
 UNIT_TEST_STATUS
@@ -622,7 +642,7 @@ ShouldBeAbleToUpdateAuthVarsWhenVarPolDisabled (
   VarA = LoadTestVariable ("TestVarA");
   UT_CLEANUP_ASSERT_NOT_NULL (VarA);
 
-  VarA->Timestamp.Year  = 2021;
+  VarA->Timestamp.Year  = 2021;   // TODO: Make this 2022
   VarA->Timestamp.Month = 4;
   VarA->Timestamp.Day   = 20;
   VarA->VarType         = VAR_TYPE_TIME_AUTH;
@@ -1109,7 +1129,7 @@ UefiTestMain (
     "AuthVarDelete",
     ShouldBeAbleToDeleteAuthVarsWhenVarPolDisabled,
     NULL,
-    ResetVarPolicyEngine,
+    ResetVarStoreAndVarPol,
     NULL
     );
   AddTestCase (
@@ -1118,7 +1138,7 @@ UefiTestMain (
     "AuthVarUpdate",
     ShouldBeAbleToUpdateAuthVarsWhenVarPolDisabled,
     NULL,
-    ResetVarPolicyEngine,
+    ResetVarStoreAndVarPol,
     NULL
     );
   AddTestCase (
@@ -1127,7 +1147,7 @@ UefiTestMain (
     "AuthVarOldTimestamp",
     ShouldBeAbleToUseOldTimestampsWhenVarPolDisabled,
     NULL,
-    ResetVarPolicyEngine,
+    ResetVarStoreAndVarPol,
     NULL
     );
   AddTestCase (
@@ -1136,7 +1156,7 @@ UefiTestMain (
     "AuthVarDiffCert",
     ShouldBeAbleToUseOtherCertsWhenVarPolDisabled,
     NULL,
-    ResetVarPolicyEngine,
+    ResetVarStoreAndVarPol,
     NULL
     );
 
